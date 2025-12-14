@@ -1,6 +1,9 @@
+spring.sql.init.platform=postgres
+
 spring.application.name=backend
 spring.datasource.url=jdbc:postgresql://localhost:5432/bookdb
 
 spring.datasource.username=myuser
 spring.datasource.password=mypassword
 spring.datasource.driver-class-name=org.postgresql.Driver
+spring.flyway.enabled=true
