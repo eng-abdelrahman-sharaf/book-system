@@ -1,29 +1,41 @@
 "use client";
-import { BookOpen, Mail, Phone, User } from "lucide-react";
+import { BookOpen, Mail, Phone, User, MapPin, Lock } from "lucide-react";
 import { Input } from "../ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { safeParse, z } from "zod";
 import Link from "next/link";
+import React from "react";
 
-const signupSchema = z.object({
-    firstName: z
-        .string()
-        .min(1, "First name is required")
-        .min(2, "First name must be at least 2 characters"),
-    lastName: z
-        .string()
-        .min(1, "Last name is required")
-        .min(2, "Last name must be at least 2 characters"),
-    email: z.email("Invalid email address"),
-    phone: z
-        .string()
-        .min(1, "Phone number is required")
-        .regex(
-            /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/,
-            "Invalid phone number format"
-        ),
-});
+const signupSchema = z
+    .object({
+        firstName: z
+            .string()
+            .min(1, "First name is required")
+            .min(2, "First name must be at least 2 characters"),
+        lastName: z
+            .string()
+            .min(1, "Last name is required")
+            .min(2, "Last name must be at least 2 characters"),
+        email: z.email("Invalid email address"),
+        phone: z
+            .string()
+            .min(1, "Phone number is required")
+            .regex(
+                /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/,
+                "Invalid phone number format"
+            ),
+        address: z.string().min(1, "Shipping address is required"),
+        username: z.string().min(1, "Username is required"),
+        password: z.string().min(6, "Password must be at least 6 characters"),
+        passwordConfirmation: z
+            .string()
+            .min(6, "Password confirmation must be at least 6 characters"),
+    })
+    .refine((data) => data.password === data.passwordConfirmation, {
+        message: "Passwords do not match",
+        path: ["passwordConfirmation"],
+    });
 
 type FormData = z.infer<typeof signupSchema>;
 
@@ -38,6 +50,7 @@ export default function SignupForm() {
 
     const onSubmit = (data: FormData) => {
         console.log("Form submitted:", data);
+        console.log(errors.root);
         alert("Account created successfully!");
     };
 
@@ -64,8 +77,7 @@ export default function SignupForm() {
                             label="First Name"
                             icon={User}
                             type="text"
-                            id="firstName"
-                            placeholder="John"
+                            placeholder="Mohammed"
                             {...register("firstName")}
                         />
                         {errors.firstName && (
@@ -74,14 +86,12 @@ export default function SignupForm() {
                             </p>
                         )}
                     </div>
-
                     <div>
                         <Input
                             label="Last Name"
                             icon={User}
                             type="text"
-                            id="lastName"
-                            placeholder="Doe"
+                            placeholder="Moeen"
                             {...register("lastName")}
                         />
                         {errors.lastName && (
@@ -90,13 +100,20 @@ export default function SignupForm() {
                             </p>
                         )}
                     </div>
-
+                    <div>
+                        <Input
+                            label="Username"
+                            icon={User}
+                            type="text"
+                            placeholder="MohammedMoeen"
+                            {...register("username")}
+                        />
+                    </div>
                     <div>
                         <Input
                             label="Email Address"
                             icon={Mail}
                             type="text"
-                            id="email"
                             placeholder="john.doe@example.com"
                             {...register("email")}
                         />
@@ -106,13 +123,11 @@ export default function SignupForm() {
                             </p>
                         )}
                     </div>
-
                     <div>
                         <Input
                             label="Phone Number"
                             icon={Phone}
                             type="tel"
-                            id="phone"
                             placeholder="+1 (555) 000-0000"
                             {...register("phone")}
                         />
@@ -122,7 +137,48 @@ export default function SignupForm() {
                             </p>
                         )}
                     </div>
-
+                    <div>
+                        <Input
+                            label="Shipping Address"
+                            icon={MapPin}
+                            type="text"
+                            placeholder="Semouha, Alexandria, Egypt"
+                            {...register("address")}
+                        />
+                        {errors.address && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.address.message}
+                            </p>
+                        )}
+                    </div>
+                    <div>
+                        <Input
+                            label="Password"
+                            icon={Lock}
+                            type="password"
+                            placeholder="Enter your password"
+                            {...register("password")}
+                        />
+                        {errors.password && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.password.message}
+                            </p>
+                        )}
+                    </div>
+                    <div>
+                        <Input
+                            label="Confirm Password"
+                            icon={Lock}
+                            type="password"
+                            placeholder="Confirm your password"
+                            {...register("passwordConfirmation")}
+                        />
+                        {errors.passwordConfirmation && (
+                            <p className="text-red-500 text-sm mt-1">
+                                {errors.passwordConfirmation.message}
+                            </p>
+                        )}
+                    </div>
                     {/* Submit Button */}
                     <button
                         type="submit"
