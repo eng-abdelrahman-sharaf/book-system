@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -32,21 +33,23 @@ public class UserRepository {
     public User save(User user){
         String query = "insert into users (username, password, first_name, last_name, email, phone, shipping_address, role)" +
                 "values (?, ?, ?, ?, ?, ?, ?, ?::role_enum) returning user_id, created_at";
-        User returned = jdbcTemplate.queryForObject(query, new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                user.setUserId(rs.getInt("user_id"));
-                user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                return user;
-            }
-        }, user.getUsername(),
+        User returned = jdbcTemplate.queryForObject(query, new Object[]{
+                user.getUsername(),
                 user.getPassword(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getEmail(),
                 user.getPhone(),
                 user.getShippingAddress(),
-                user.getRole().name());
+                user.getRole().name()
+        }, new RowMapper<User>() {
+            @Override
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                user.setUserId(rs.getInt("user_id"));
+                user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                return user;
+            }
+        });
         return returned;
     }
     // update, delete but when we work on the crud
@@ -63,6 +66,26 @@ public class UserRepository {
                 user.getShippingAddress(),
                 user.getUserId()
         );
+    }
+    public User get(String username){
+        String query = "select * from users where username = ?";
+        User user = jdbcTemplate.queryForObject(query, new Object[]{
+                username,
+        }, new RowMapper<User>() {
+            @Override
+            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+                User tempuser = new User();
+                tempuser.setUserId(rs.getInt("user_id"));
+                tempuser.setPassword(rs.getString("password"));
+                tempuser.setFirstName(rs.getString("first_name"));
+                if(Objects.equals(rs.getString("role"), "Admin"))
+                    tempuser.setRole(Role.Admin);
+                else if(Objects.equals(rs.getString("role"), "Customer"))
+                    tempuser.setRole(Role.Customer);
+                return tempuser;
+            }
+        });
+        return user;
     }
 
     public Optional<User> findByUsername(String username) {

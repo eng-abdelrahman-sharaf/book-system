@@ -1,31 +1,38 @@
 package org.example.backend.controller;
 
+import org.example.backend.model.dto.LoginRequest;
 import org.example.backend.model.dto.LoginResponse;
+
 import org.example.backend.model.dto.SignupRequest;
 import org.example.backend.model.entity.User;
 import org.example.backend.service.AuthService;
 import org.example.backend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1/api/auth")
 public class AuthController {
     private final UserService userService;
     private final AuthService authService;
-
     public AuthController(UserService userService, AuthService authService) {
         this.userService = userService;
         this.authService = authService;
     }
-
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
-        try {
+    public ResponseEntity<?> signup(@RequestBody SignupRequest request){
+        try{
             User user = userService.signup(request);
             return ResponseEntity.ok("User registered successfully: " + user.getUsername());
-        } catch (IllegalArgumentException e) {
+        }
+        catch (IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -55,4 +62,20 @@ public class AuthController {
             this.refreshToken = refreshToken;
         }
     }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request){
+        try{
+            String token = userService.login(request);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "User login successfully");
+            response.put("token", token);
+
+            return ResponseEntity.ok(response);
+
+        }
+        catch (IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 }
