@@ -1,6 +1,5 @@
 package org.example.backend.Repository;
 
-import com.sun.source.tree.BreakTree;
 import org.example.backend.model.entity.Book;
 import org.example.backend.model.enums.CategoryType;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class BookRepository {
@@ -34,6 +32,18 @@ public class BookRepository {
     public Book findByIsbn(String isbn) {
         String sql = "SELECT * FROM Books WHERE isbn = ?";
         return jdbcTemplate.queryForObject(sql, bookRowMapper, isbn);
+    }
+    public List<Book> findAll() {
+        return jdbcTemplate.query("SELECT * FROM Books", bookRowMapper);
+    }
+    public List<Book> findByCategory(CategoryType category) {
+        String sql = "SELECT * FROM Books WHERE category = ?";
+        return jdbcTemplate.query(sql, bookRowMapper, category.name());
+    }
+
+    public List<Book> findByPublisher(int publisherId) {
+        String sql = "SELECT * FROM Books WHERE publisher_id = ?";
+        return jdbcTemplate.query(sql, bookRowMapper, publisherId);
     }
     public Book create(Book book){
         String sql = """
