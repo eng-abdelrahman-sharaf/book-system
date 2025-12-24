@@ -1,0 +1,10 @@
+ user_id |   username   |                           password                           | first_name | last_name |           email            |     phone     |       shipping_address        |   role   |         created_at         
+---------+--------------+--------------------------------------------------------------+------------+-----------+----------------------------+---------------+-------------------------------+----------+----------------------------
+       3 | johndoe      | $2a$10$eTj1JNxZexftUrzB4KU5ducAeY00zLrUKEubNKMy2Uvb8j4V1mjse | John       | Doe       | johndoe@example.com        | +201234567890 | 123 Main Street, Cairo, Egypt | Customer | 2025-12-14 16:27:18.432987
+       4 | pedri        | $2a$10$R0mhwN5pbFFE6PXjghBdjeCleynwm0LNvyhtktasdFDTZEmmN.q5K | John       | Doe       | pedri@example.com          | +201234567890 | 123 Main Street, Cairo, Egypt | Customer | 2025-12-14 16:28:06.232805
+       5 | pfedri       | $2a$10$7HgAHnKm2uC3ZpGx1dCC7epq0rt/jKsQAZ2IGjPjUD.AnxFw0kuLO | pedri      | 3amak     | pedrsdi@example.com        | +201234567890 | 123 Main Street, Cairo, Egypt | Customer | 2025-12-19 00:13:19.58746
+       6 | MohamedMoeen | $2a$10$j1JdFQ/SZegk01NFBz6cIuyRYTTjes.Dn/FJQdSz743lgFcRuxj3m | Mohamed    | Moeen     | mohamed.moeen166@gmail.com | 01207737686   | felemeng                      | Customer | 2025-12-19 00:38:16.214877
+       7 | as           | $2a$10$LuwYoFw84SxrkjxO3d6Oaeh2t0CAqn0w7ffcQa5iRO0xb.dYxmVam | Mohamed    | Moeen     | mohamed.moen166@gmail.com  | 01207737686   | felemeng                      | Customer | 2025-12-19 00:38:40.390476
+       8 | pedri3amak   | $2a$10$WwDdM59Wojyzg0DkZPPUyORFMOB1RfkuR8BRQhGHzIRjHY6s2OF/u | Mohamed    | Moeen     | pedri@gmail.com            | 01207737686   | felemeng                      | Customer | 2025-12-19 00:40:47.726891
+(6 rows)
+
