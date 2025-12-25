@@ -75,4 +75,8 @@ public class BookRepository {
     public long count() {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Books", Long.class);
     }
+    public void deductStock(String isbn, int quantity) {
+        String sql = "UPDATE Books SET number_of_books = number_of_books - ? WHERE isbn = ?";
+        jdbcTemplate.update(sql, quantity, isbn);
+    }
 }

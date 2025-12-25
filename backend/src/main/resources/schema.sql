@@ -93,10 +93,10 @@ CREATE TABLE IF NOT EXISTS ShoppingCartItems
 );
 CREATE TABLE IF NOT EXISTS BillingInfo
 (
-    user_id         INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id         INT PRIMARY KEY,
     expiration_date DATE        NOT NULL,
     billing_address VARCHAR     NOT NULL,
     card_number     VARCHAR(20) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users (user_id)
-);
+    );
 
