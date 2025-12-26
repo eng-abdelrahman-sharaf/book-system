@@ -35,6 +35,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        // Skip JWT processing for auth endpoints
+        String path = request.getRequestURI();
+        if (path != null && path.startsWith("/v1/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -44,32 +51,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authHeader.substring(7);
 
-        if (!jwtService.validateToken(token)) {
+        try {
+            if (!jwtService.validateToken(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String tokenType = jwtService.extractTokenType(token);
+            if (!"access".equals(tokenType)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String username = jwtService.extractUsername(token);
+            Integer userId = jwtService.extractUserId(token);
+            Role role = jwtService.extractRole(token);
+
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        username,
+                        null,
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()))
+                );
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // Store userId in request attribute for easy access in controllers
+                request.setAttribute("userId", userId);
+            }
+        } catch (Exception e) {
+            // If token processing fails, continue without authentication
+            // This allows the request to proceed and be handled by Spring Security's authorization rules
             filterChain.doFilter(request, response);
             return;
-        }
-
-        String tokenType = jwtService.extractTokenType(token);
-        if (!"access".equals(tokenType)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String username = jwtService.extractUsername(token);
-        Integer userId = jwtService.extractUserId(token);
-        Role role = jwtService.extractRole(token);
-
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    username,
-                    null,
-                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()))
-            );
-            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            // Store userId in request attribute for easy access in controllers
-            request.setAttribute("userId", userId);
         }
 
         filterChain.doFilter(request, response);

@@ -168,12 +168,8 @@ export default function SignupForm() {
                     <p className="text-gray-600">
                         Already have an account?{" "}
                         <Link
-                            href="#"
-                            className="text-amber-600 hover:text-amber-700 font-semibold hover:underline"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                alert("Redirecting to login page...");
-                            }}>
+                            href="/login"
+                            className="text-amber-600 hover:text-amber-700 font-semibold hover:underline">
                             Log In
                         </Link>
                     </p>

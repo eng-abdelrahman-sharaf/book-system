@@ -2,9 +2,10 @@
 import { responseErrorToString } from "@/lib/error";
 import { SignUpFormData } from "@/types/authentication/signup";
 
+const BACKEND_URL = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+
 export const signUp = async (data: SignUpFormData) => {
-    console.log(process.env.BACKEND_URL);
-    const response = await fetch(`${process.env.BACKEND_URL}/auth/signup`, {
+    const response = await fetch(`${BACKEND_URL}/v1/api/auth/signup`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

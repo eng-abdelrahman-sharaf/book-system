@@ -4,6 +4,7 @@ import org.example.backend.Repository.RefreshTokenRepository;
 import org.example.backend.Repository.UserRepository;
 import org.example.backend.model.dto.LoginResponse;
 import org.example.backend.model.entity.User;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,16 +19,25 @@ import java.util.Date;
 @Service
 public class AuthService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final ShoppingCartService shoppingCartService;
 
-    public AuthService(UserRepository userRepository, JwtService jwtService, RefreshTokenRepository refreshTokenRepository, ShoppingCartService shoppingCartService) {
+    public AuthService(
+            ShoppingCartService shoppingCartService,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService,
+            RefreshTokenRepository refreshTokenRepository
+    ) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.refreshTokenRepository = refreshTokenRepository;
         this.shoppingCartService = shoppingCartService;
     }
+
 
     // Refreshes an access token using a valid refresh token.
     // Implements token rotation: old refresh token is deleted and a new one is issued.
@@ -70,6 +80,7 @@ public class AuthService {
 
         return new LoginResponse(newAccessToken, newRefreshToken);
     }
+
 
     @Transactional
     public void logout(String refreshToken) {
