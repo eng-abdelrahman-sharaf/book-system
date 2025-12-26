@@ -53,6 +53,18 @@ public class BookService {
         return bookRepository.readAll();
     }
 
+    public List<Book> searchBooks(String title, String author, String isbn, String category, String publisher) {
+        // If all filters are empty, return all books
+        if ((title == null || title.isBlank()) &&
+            (author == null || author.isBlank()) &&
+            (isbn == null || isbn.isBlank()) &&
+            (category == null || category.isBlank()) &&
+            (publisher == null || publisher.isBlank())) {
+            return bookRepository.readAll();
+        }
+        return bookRepository.searchBooks(title, author, isbn, category, publisher);
+    }
+
     @Transactional
     public void deleteBook(String isbn) {
         validateIsbn(isbn);

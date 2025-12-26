@@ -177,3 +177,20 @@ FOR EACH ROW
 WHEN (OLD.status IS DISTINCT FROM NEW.status)
 EXECUTE FUNCTION add_stock_on_order_confirmation();;
 
+-- CREATE EXTENSION IF NOT EXISTS pg_trgm;
+--
+-- CREATE INDEX IF NOT EXISTS idx_books_title_trgm ON Books USING GIN (title pg_trgm_ops);
+-- CREATE INDEX IF NOT EXISTS idx_books_category ON Books(category);
+-- CREATE INDEX IF NOT EXISTS idx_authors_name_trgm ON Authors USING GIN (name pg_trgm_ops);
+-- CREATE INDEX IF NOT EXISTS idx_publishers_name_trgm ON Publishers USING GIN (name pg_trgm_ops);
+
+-- DROP TRIGGER IF EXISTS before_update_books ON Books;
+
+-- CREATE TRIGGER before_update_books
+-- BEFORE UPDATE ON Books
+-- FOR EACH ROW
+-- BEGIN
+--     IF NEW.number_of_books < 0 THEN
+--         RAISE EXCEPTION 'number of stocked books cannot be negative'
+-- END$$
+

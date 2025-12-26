@@ -1,7 +1,10 @@
 import { getAccessToken, removeAccessToken } from "./token-storage";
 import { responseErrorToString } from "./error";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+const BACKEND_URL =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    "http://localhost:8080";
 
 export async function apiRequest(
     endpoint: string,

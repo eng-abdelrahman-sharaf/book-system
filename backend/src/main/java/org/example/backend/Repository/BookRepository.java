@@ -103,13 +103,34 @@ public class BookRepository {
     }
 
     public List<Book> readAll() {
-        String query = "SELECT * FROM books";
+        String query =
+                "SELECT b.isbn, b.title, b.publisher_id, b.publication_year, b.selling_price, b.category, " +
+                        "b.number_of_books, b.threshold, p.name AS publisher_name, " +
+                        "NULLIF(string_agg(DISTINCT a.name, ', '), '') AS author_name " +
+                        "FROM books b " +
+                        "LEFT JOIN publishers p ON b.publisher_id = p.publisher_id " +
+                        "LEFT JOIN bookauthors ba ON b.isbn = ba.isbn " +
+                        "LEFT JOIN authors a ON ba.author_id = a.author_id " +
+                        "GROUP BY b.isbn, b.title, b.publisher_id, b.publication_year, b.selling_price, b.category, " +
+                        "b.number_of_books, b.threshold, p.name";
+
         List<Book> books = this.jdbcTemplate.query(query, new BookRowMapper());
-        return  books;
+        return books;
     }
 
     public Book read(String isbn) {
-        String query = "SELECT * FROM books WHERE isbn = ?";
+        String query =
+                "SELECT b.isbn, b.title, b.publisher_id, b.publication_year, b.selling_price, b.category, " +
+                        "b.number_of_books, b.threshold, p.name AS publisher_name, " +
+                        "NULLIF(string_agg(DISTINCT a.name, ', '), '') AS author_name " +
+                        "FROM books b " +
+                        "LEFT JOIN publishers p ON b.publisher_id = p.publisher_id " +
+                        "LEFT JOIN bookauthors ba ON b.isbn = ba.isbn " +
+                        "LEFT JOIN authors a ON ba.author_id = a.author_id " +
+                        "WHERE b.isbn = ? " +
+                        "GROUP BY b.isbn, b.title, b.publisher_id, b.publication_year, b.selling_price, b.category, " +
+                        "b.number_of_books, b.threshold, p.name";
+
         List<Book> books = this.jdbcTemplate.query(query, new BookRowMapper(), isbn);
         return books.stream().findFirst().orElse(null);
     }
@@ -119,6 +140,46 @@ public class BookRepository {
         Integer count = jdbcTemplate.queryForObject(query, Integer.class, isbn);
         return count != null && count > 0;
     }
+
+    public List<Book> searchBooks(String title, String author, String isbn, String category, String publisher) {
+        StringBuilder queryBuilder = new StringBuilder(
+            "SELECT b.isbn, b.title, b.publisher_id, b.publication_year, b.selling_price, b.category, " +
+                    "b.number_of_books, b.threshold, p.name AS publisher_name, " +
+                    "NULLIF(string_agg(DISTINCT a.name, ', '), '') AS author_name " +
+                    "FROM books b " +
+                    "LEFT JOIN bookauthors ba ON b.isbn = ba.isbn " +
+                    "LEFT JOIN authors a ON ba.author_id = a.author_id " +
+                    "LEFT JOIN publishers p ON b.publisher_id = p.publisher_id " +
+                    "WHERE 1=1"
+        );
+        List<Object> params = new ArrayList<>();
+
+        if (title != null && !title.isBlank()) {
+            queryBuilder.append(" AND b.title ILIKE ?");
+            params.add("%" + title + "%");
+        }
+        if (author != null && !author.isBlank()) {
+            queryBuilder.append(" AND a.name ILIKE ?");
+            params.add("%" + author + "%");
+        }
+        if (isbn != null && !isbn.isBlank()) {
+            queryBuilder.append(" AND b.isbn = ?");
+            params.add(isbn);
+        }
+        if (category != null && !category.isBlank()) {
+            queryBuilder.append(" AND b.category::text = ?");
+            params.add(category);
+        }
+        if (publisher != null && !publisher.isBlank()) {
+            queryBuilder.append(" AND p.name ILIKE ?");
+            params.add("%" + publisher + "%");
+        }
+
+        queryBuilder.append(" GROUP BY b.isbn, b.title, b.publisher_id, b.publication_year, b.selling_price, b.category, b.number_of_books, b.threshold, p.name");
+
+        return jdbcTemplate.query(queryBuilder.toString(), new BookRowMapper(), params.toArray());
+    }
+
   public void deductStock(String isbn, int quantity) {
         String sql = "UPDATE Books SET number_of_books = number_of_books - ? WHERE isbn = ?";
         jdbcTemplate.update(sql, quantity, isbn);
