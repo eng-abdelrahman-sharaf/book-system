@@ -2,7 +2,7 @@
 import { CartBookPrice } from "./mockCartData";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/v1/api";
-const ACCESS_TOKEN = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJKb2huIiwidXNlcklkIjoxMSwicm9sZSI6IkN1c3RvbWVyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc2Njc1MzkwOSwiZXhwIjoxNzY2NzU0ODA5fQ.uDkphJc9CrvLXCfypLc2wj36ii3UdMTu-GjXgzI5x_uhBoDp3zeXiF2016iNdUZsymY17DsMBzqGobsM6YUGKQ";
+const ACCESS_TOKEN = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJKb2huIiwidXNlcklkIjoxMSwicm9sZSI6IkN1c3RvbWVyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc2Njc1NzQ5NiwiZXhwIjoxNzY2NzYxMDk2fQ.s6KisSulUkBTEvvXaOO3_9SVTUULMa_un3rKrVwdI138biHpp2HjpyY_c9oXyCKMlLlB_DWtgId5ZOntWgYa5Q";
 
 export async function getCartItems(): Promise<CartBookPrice[]> {
     try {

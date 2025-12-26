@@ -4,8 +4,9 @@ import CartList from "./CartList";
 import CartSummary from "./CartSummary";
 import { CartBookPrice } from "../../lib/mockCartData";
 import { getCartItems, getCartTotal, removeBook, clearCart } from "../../lib/cartApi";
-
+import { useRouter } from "next/navigation";
 const CartPage: React.FC = () => {
+    const router = useRouter(); // <-- initialize router
     const [cartItems, setCartItems] = useState<CartBookPrice[]>([]);
     const [total, setTotal] = useState<number>(0);
     const [loading, setLoading] = useState<boolean>(true);
@@ -50,7 +51,7 @@ const CartPage: React.FC = () => {
     };
 
     const handleCheckout = () => {
-        alert("Checkout clicked! You will integrate this later.");
+        router.push("/checkout");
     };
 
     if (loading) return <p>Loading cart...</p>;

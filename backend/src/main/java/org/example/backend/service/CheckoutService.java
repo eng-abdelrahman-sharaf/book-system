@@ -86,4 +86,9 @@ public class CheckoutService {
         shoppingCartService.clearCart(userId);
         return order;
     }
+    public String getSavedCardNumber(int userId) {
+        return billingInfoRepository.findByUserId(userId)
+                .map(b -> "**** **** **** " + b.getCardNumber().substring(12))
+                .orElse(null);
+    }
 }

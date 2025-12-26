@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/v1/api/cart")
 public class CheckoutController {
@@ -30,14 +32,38 @@ public class CheckoutController {
             Integer userId = extractUserId(authHeader);
 
             CustomerOrder order = checkoutService.checkout(userId, request);
-            return ResponseEntity.ok(order);
+
+            return ResponseEntity.ok(
+                    Map.of(
+                            "orderId", order.getOrderId(),
+                            "message", "Order placed successfully"
+                    )
+            );
 
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                            "message", e.getMessage()
+                    ));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred");
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "message", "An unexpected error occurred"
+                    ));
+        }
+    }
+
+    @GetMapping("/card")
+    public ResponseEntity<?> getSavedCard(
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            Integer userId = extractUserId(authHeader);
+            String cardNumber = checkoutService.getSavedCardNumber(userId);
+            return ResponseEntity.ok(cardNumber != null ? cardNumber : "");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("");
         }
     }
 
