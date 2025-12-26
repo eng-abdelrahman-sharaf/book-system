@@ -1,4 +1,12 @@
--- create type role_enum as ENUM('Admin', 'Customer');
+SET search_path TO public;;
+
+DO $$ 
+BEGIN
+    CREATE TYPE role_enum AS ENUM('Admin', 'Customer');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;;
+
 CREATE TABLE IF NOT EXISTS Users
 (
     user_id          INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -11,7 +19,7 @@ CREATE TABLE IF NOT EXISTS Users
     shipping_address VARCHAR(255),
     role             role_enum    NOT NULL,
     created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+);;
 
 CREATE TABLE IF NOT EXISTS Publishers
 (
@@ -19,8 +27,14 @@ CREATE TABLE IF NOT EXISTS Publishers
     name         VARCHAR(100) NOT NULL,
     address      VARCHAR(255),
     phone        VARCHAR(20)
-);
--- create type category_type as ENUM('Science', 'Art', 'Religion', 'History', 'Geography');
+);;
+DO $$ 
+BEGIN
+    CREATE TYPE category_type AS ENUM('Science', 'Art', 'Religion', 'History', 'Geography');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
 CREATE TABLE IF NOT EXISTS Books
 (
     isbn            VARCHAR(20) PRIMARY KEY,
@@ -32,12 +46,14 @@ CREATE TABLE IF NOT EXISTS Books
     number_of_books INT DEFAULT 0,
     threshold       INT DEFAULT 5,
     FOREIGN KEY (publisher_id) REFERENCES Publishers (publisher_id)
-);
+);;
+
 CREATE TABLE IF NOT EXISTS Authors
 (
     author_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name      VARCHAR(100) NOT NULL
-);
+);;
+
 CREATE TABLE IF NOT EXISTS BookAuthors
 (
     isbn      VARCHAR(20),
@@ -45,8 +61,14 @@ CREATE TABLE IF NOT EXISTS BookAuthors
     PRIMARY KEY (isbn, author_id),
     FOREIGN KEY (isbn) REFERENCES Books (isbn),
     FOREIGN KEY (author_id) REFERENCES Authors (author_id)
-);
-CREATE TYPE order_status AS ENUM ('Pending', 'Confirmed');
+);;
+
+DO $$ 
+BEGIN
+    CREATE TYPE order_status AS ENUM ('Pending', 'Confirmed');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;;
 CREATE TABLE IF NOT EXISTS PublisherOrders
 (
     order_id   INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -55,7 +77,8 @@ CREATE TABLE IF NOT EXISTS PublisherOrders
     order_date TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
     status     order_status DEFAULT 'Pending',
     FOREIGN KEY (isbn) REFERENCES Books (isbn)
-);
+);;
+
 CREATE TABLE IF NOT EXISTS CustomerOrders
 (
     order_id     INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -64,7 +87,8 @@ CREATE TABLE IF NOT EXISTS CustomerOrders
     total_amount DECIMAL(10, 2),
     status       order_status DEFAULT 'Pending',
     FOREIGN KEY (user_id) REFERENCES Users (user_id)
-);
+);;
+
 CREATE TABLE IF NOT EXISTS CustomerOrderItems
 (
     order_id INT            NOT NULL,
@@ -74,14 +98,16 @@ CREATE TABLE IF NOT EXISTS CustomerOrderItems
     PRIMARY KEY (order_id, isbn),
     FOREIGN KEY (order_id) REFERENCES CustomerOrders (order_id),
     FOREIGN KEY (isbn) REFERENCES Books (isbn)
-);
+);;
+
 CREATE TABLE IF NOT EXISTS ShoppingCart
 (
     cart_id    INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id    INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users (user_id)
-);
+);;
+
 CREATE TABLE IF NOT EXISTS ShoppingCartItems
 (
     cart_id  INT         NOT NULL,
@@ -90,7 +116,8 @@ CREATE TABLE IF NOT EXISTS ShoppingCartItems
     PRIMARY KEY (cart_id, isbn),
     FOREIGN KEY (cart_id) REFERENCES ShoppingCart (cart_id),
     FOREIGN KEY (isbn) REFERENCES Books (isbn)
-);
+);;
+
 CREATE TABLE IF NOT EXISTS BillingInfo
 (
     user_id         INT PRIMARY KEY,
@@ -98,7 +125,7 @@ CREATE TABLE IF NOT EXISTS BillingInfo
     billing_address VARCHAR     NOT NULL,
     card_number     VARCHAR(20) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users (user_id)
-    );
+    );;
 
 -- Refresh tokens table for JWT authentication
 CREATE TABLE IF NOT EXISTS RefreshTokens
@@ -109,11 +136,11 @@ CREATE TABLE IF NOT EXISTS RefreshTokens
     expires_at  TIMESTAMP NOT NULL,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE
-);
+);;
 
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON RefreshTokens(user_id);
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON RefreshTokens(token);
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON RefreshTokens(expires_at);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON RefreshTokens(user_id);;
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON RefreshTokens(token);;
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON RefreshTokens(expires_at);;
 
 CREATE OR REPLACE FUNCTION create_publisher_order_on_low_stock()
 RETURNS TRIGGER AS $$
@@ -124,13 +151,13 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;;
 
 CREATE TRIGGER trigger_create_publisher_order
 AFTER UPDATE ON Books
 FOR EACH ROW
 WHEN (OLD.number_of_books IS DISTINCT FROM NEW.number_of_books)
-EXECUTE FUNCTION create_publisher_order_on_low_stock();
+EXECUTE FUNCTION create_publisher_order_on_low_stock();;
 
 CREATE OR REPLACE FUNCTION add_stock_on_order_confirmation()
 RETURNS TRIGGER AS $$
@@ -142,11 +169,11 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;;
 
 CREATE TRIGGER trigger_add_stock_on_confirmation
 AFTER UPDATE ON PublisherOrders
 FOR EACH ROW
 WHEN (OLD.status IS DISTINCT FROM NEW.status)
-EXECUTE FUNCTION add_stock_on_order_confirmation();
+EXECUTE FUNCTION add_stock_on_order_confirmation();;
 
