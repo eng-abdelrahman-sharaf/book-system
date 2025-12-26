@@ -55,13 +55,15 @@ public class ShoppingCartController {
     }
 
     @GetMapping("/total")
-    public ResponseEntity<Double> totalPrice(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> totalPrice(@RequestHeader("Authorization") String authHeader) {
         Integer userId = extractUserIdFromHeader(authHeader);
         try {
+            System.out.println("hello");
             double total = cartService.getCartTotal(userId);
+            System.out.println("messi");
             return ResponseEntity.ok(total);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

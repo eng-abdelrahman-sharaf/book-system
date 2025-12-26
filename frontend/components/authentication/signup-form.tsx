@@ -9,6 +9,7 @@ import React from "react";
 import { SignUpFormData, signupSchema } from "@/types/authentication/signup";
 import { signUp } from "@/api/authentication/signup";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function SignupForm() {
     const {
@@ -19,15 +20,15 @@ export default function SignupForm() {
         resolver: zodResolver(signupSchema),
     });
 
+    const router = useRouter();
+
     const onSubmit = async (data: SignUpFormData) => {
         toast.promise(signUp(data), {
             loading: "Signing up...",
             success: "Signed up successfully!",
             error: (err:Error) => err.message,
         });
-        
-        
-        
+        router.push("/login");
     };
 
     return (

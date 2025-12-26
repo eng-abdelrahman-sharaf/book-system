@@ -17,6 +17,19 @@ export const fetchTopCustomers = async (
         }
     );
 
+    if (response.status === 401) {
+        throw new Error("UNAUTHORIZED");
+    }
+
+    if (response.status === 403) {
+        throw new Error("FORBIDDEN");
+    }
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "SERVER_ERROR");
+    }
+
     console.log("HTTP status:", response.status);
 
     return response.json();
@@ -36,6 +49,19 @@ export const fetchPreviousMonthSales = async (
             },
         }
     );
+
+    if (response.status === 401) {
+        throw new Error("UNAUTHORIZED");
+    }
+
+    if (response.status === 403) {
+        throw new Error("FORBIDDEN");
+    }
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "SERVER_ERROR");
+    }
 
     console.log("HTTP status:", response.status);
 
@@ -58,7 +84,20 @@ export const fetchDailySales = async (
         }
     );
 
-    console.log("HTTsP status:", response.status);
+    if (response.status === 401) {
+        throw new Error("UNAUTHORIZED");
+    }
+
+    if (response.status === 403) {
+        throw new Error("FORBIDDEN");
+    }
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "SERVER_ERROR");
+    }
+
+    console.log("HTTP status:", response.status);
 
     return response.json();
 };
@@ -80,7 +119,20 @@ export const fetchBookReport = async (
         }
     );
 
-    console.log("HTTP status:", response.status);
+    if (response.status === 401) {
+        throw new Error("UNAUTHORIZED");
+    }
+
+    if (response.status === 403) {
+        throw new Error("FORBIDDEN");
+    }
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "SERVER_ERROR");
+    }
+
+    console.log("HTTP status:", response);
 
     return response.json();
 };
@@ -100,7 +152,20 @@ export const fetchTopBooks = async (
         }
     );
 
-    console.log("HTTP status:", response.status);
+    if (response.status === 401) {
+        throw new Error("UNAUTHORIZED");
+    }
+
+    if (response.status === 403) {
+        throw new Error("FORBIDDEN");
+    }
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "SERVER_ERROR");
+    }
+
+    console.log("HTTP status:", response);
 
     return response.json();
 };

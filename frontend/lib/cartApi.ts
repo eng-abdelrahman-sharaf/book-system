@@ -1,79 +1,75 @@
-'use server';
-import { CartBookPrice } from "./mockCartData";
+'use client';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/v1/api";
-const ACCESS_TOKEN = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJKb2huIiwidXNlcklkIjoxMSwicm9sZSI6IkN1c3RvbWVyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc2Njc2NDM3NywiZXhwIjoxNzY2NzY3OTc3fQ.BX5_HXqn1IBjv6iAsnvBJ_iGFjiviriLHG0GOfGfWQewaYxLKD7YMmvRbKSK1LG1snu2SjS9u3gfTyTrDI6hcA";
+import { CartBookPrice } from "./mockCartData";
+import { apiRequest } from "./api-client";
+
+const BASE_PATH = "/v1/api/cart";
+
+/* =========================
+   API Calls
+========================= */
 
 export async function getCartItems(): Promise<CartBookPrice[]> {
     try {
-        const res = await fetch(`${BASE_URL}/cart/items`, {
-            headers: { "Authorization": ACCESS_TOKEN },
+        const res = await apiRequest(`${BASE_PATH}/items`, {
             method: "GET",
-            mode: "cors"
         });
 
-        console.log("getCartItems response status:", res.status);
+        if (!res.ok) {
+            console.error("getCartItems failed:", res.status);
+            return [];
+        }
 
         const text = await res.text();
-        if (!text) return []; // empty cart
-        return JSON.parse(text);
+        return text ? JSON.parse(text) : [];
     } catch (err) {
         console.error("Cart fetch error:", err);
-        return []; // fallback empty array
+        return [];
     }
 }
 
 export async function getCartTotal(): Promise<number> {
     try {
-        const res = await fetch(`${BASE_URL}/cart/total`, {
-            headers: { "Authorization": ACCESS_TOKEN },
+        const res = await apiRequest(`${BASE_PATH}/total`, {
             method: "GET",
-            mode: "cors"
         });
 
-        console.log("getCartTotal response status:", res.status);
+        if (!res.ok) {
+            console.error("getCartTotal failed:", res.status);
+            return 0;
+        }
 
         const text = await res.text();
-        if (!text) return 0; // empty total
-        return JSON.parse(text);
+        return text ? JSON.parse(text) : 0;
     } catch (err) {
         console.error("Cart total fetch error:", err);
-        return 0; // fallback zero
+        return 0;
     }
 }
 
-export async function removeBook(isbn: string): Promise<void> {
+export async function removeBook(isbn: string): Promise<boolean> {
     try {
-        const res = await fetch(`${BASE_URL}/cart/remove`, {
+        const res = await apiRequest(`${BASE_PATH}/remove`, {
             method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": ACCESS_TOKEN
-            },
             body: JSON.stringify({ isbn }),
-            mode: "cors"
         });
 
-        console.log("removeBook response status:", res.status);
-        // backend may not return res.ok = false, so no error thrown
+        return res.ok;
     } catch (err) {
         console.error("Remove book error:", err);
-        throw err;
+        return false;
     }
 }
 
-export async function clearCart(): Promise<void> {
+export async function clearCart(): Promise<boolean> {
     try {
-        const res = await fetch(`${BASE_URL}/cart/clear`, {
+        const res = await apiRequest(`${BASE_PATH}/clear`, {
             method: "DELETE",
-            headers: { "Authorization": ACCESS_TOKEN },
-            mode: "cors"
         });
 
-        console.log("clearCart response status:", res.status);
-        // backend may not return res.ok = false
+        return res.ok;
     } catch (err) {
         console.error("Clear cart error:", err);
-        throw err;
+        return false;
     }
 }
