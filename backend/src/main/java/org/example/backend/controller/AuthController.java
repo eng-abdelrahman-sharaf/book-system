@@ -42,15 +42,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
-            LoginResponse response = authService.login(request);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
-    }
+
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
@@ -62,16 +54,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody RefreshTokenRequest request) {
-        try {
-            authService.logout(request.getRefreshToken());
-            return ResponseEntity.ok("Logged out successfully");
-        } catch (Exception e) {
-            // Logout should be idempotent - even if token doesn't exist, consider it successful
-            return ResponseEntity.ok("Logged out successfully");
-        }
-    }
+
 
     // Inner class for refresh token request
     public static class RefreshTokenRequest {
