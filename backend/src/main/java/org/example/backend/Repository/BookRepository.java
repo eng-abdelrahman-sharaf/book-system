@@ -119,6 +119,41 @@ public class BookRepository {
         Integer count = jdbcTemplate.queryForObject(query, Integer.class, isbn);
         return count != null && count > 0;
     }
+
+    public List<Book> searchBooks(String title, String author, String isbn, String category, String publisher) {
+        StringBuilder queryBuilder = new StringBuilder(
+            "SELECT DISTINCT b.* FROM books b " +
+            "LEFT JOIN bookauthors ba ON b.isbn = ba.isbn " +
+            "LEFT JOIN authors a ON ba.author_id = a.author_id " +
+            "LEFT JOIN publishers p ON b.publisher_id = p.publisher_id " +
+            "WHERE 1=1"
+        );
+        List<Object> params = new ArrayList<>();
+
+        if (title != null && !title.isBlank()) {
+            queryBuilder.append(" AND b.title ILIKE ?");
+            params.add("%" + title + "%");
+        }
+        if (author != null && !author.isBlank()) {
+            queryBuilder.append(" AND a.name ILIKE ?");
+            params.add("%" + author + "%");
+        }
+        if (isbn != null && !isbn.isBlank()) {
+            queryBuilder.append(" AND b.isbn = ?");
+            params.add(isbn);
+        }
+        if (category != null && !category.isBlank()) {
+            queryBuilder.append(" AND b.category::text = ?");
+            params.add(category);
+        }
+        if (publisher != null && !publisher.isBlank()) {
+            queryBuilder.append(" AND p.name ILIKE ?");
+            params.add("%" + publisher + "%");
+        }
+
+        return jdbcTemplate.query(queryBuilder.toString(), new BookRowMapper(), params.toArray());
+    }
+
   public void deductStock(String isbn, int quantity) {
         String sql = "UPDATE Books SET number_of_books = number_of_books - ? WHERE isbn = ?";
         jdbcTemplate.update(sql, quantity, isbn);
