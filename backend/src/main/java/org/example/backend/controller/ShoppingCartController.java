@@ -3,6 +3,7 @@ package org.example.backend.controller;
 import org.example.backend.model.dto.AddBooksRequest;
 import org.example.backend.model.dto.CartBookPrice;
 import org.example.backend.model.dto.RemoveBookRequest;
+import org.example.backend.service.JwtService;
 import org.example.backend.service.ShoppingCartService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +16,23 @@ import java.util.List;
 public class ShoppingCartController {
 
     private final ShoppingCartService cartService;
+    private final JwtService jwtService;
 
-    public ShoppingCartController(ShoppingCartService cartService) {
+    public ShoppingCartController(ShoppingCartService cartService,JwtService jwtService) {
         this.cartService = cartService;
+        this.jwtService=jwtService;
     }
-
-    @PostMapping("/{userId}/add-books")
-    public ResponseEntity<String> addBooks(@PathVariable int userId,
+    private Integer extractUserIdFromHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Missing or invalid Authorization header");
+        }
+        String token = authHeader.substring(7); // remove "Bearer "
+        return jwtService.extractUserId(token);
+    }
+    @PostMapping("/add-books")
+    public ResponseEntity<String> addBooks(@RequestHeader("Authorization") String authHeader,
                                            @RequestBody AddBooksRequest request) {
+        Integer userId = extractUserIdFromHeader(authHeader);
         try {
             request.getItems().forEach(item ->
                     cartService.addBook(userId, item.getIsbn(), item.getQuantity()));
@@ -33,8 +43,9 @@ public class ShoppingCartController {
         }
     }
 
-    @GetMapping("/{userId}/items")
-    public ResponseEntity<List<CartBookPrice>> viewCart(@PathVariable int userId) {
+    @GetMapping("/items")
+    public ResponseEntity<List<CartBookPrice>> viewCart( @RequestHeader("Authorization") String authHeader) {
+        Integer userId = extractUserIdFromHeader(authHeader);
         try {
             List<CartBookPrice> items = cartService.viewCartItems(userId);
             return ResponseEntity.ok(items);
@@ -43,8 +54,9 @@ public class ShoppingCartController {
         }
     }
 
-    @GetMapping("/{userId}/total")
-    public ResponseEntity<Double> totalPrice(@PathVariable int userId) {
+    @GetMapping("/total")
+    public ResponseEntity<Double> totalPrice(@RequestHeader("Authorization") String authHeader) {
+        Integer userId = extractUserIdFromHeader(authHeader);
         try {
             double total = cartService.getCartTotal(userId);
             return ResponseEntity.ok(total);
@@ -53,9 +65,10 @@ public class ShoppingCartController {
         }
     }
 
-    @DeleteMapping("/{userId}/remove")
-    public ResponseEntity<String> removeBook(@PathVariable int userId,
+    @DeleteMapping("/remove")
+    public ResponseEntity<String> removeBook(@RequestHeader("Authorization") String authHeader,
                                              @RequestBody RemoveBookRequest request) {
+        Integer userId = extractUserIdFromHeader(authHeader);
         try {
             cartService.removeBook(userId, request.getIsbn());
             return ResponseEntity.ok("Book removed from cart successfully.");
@@ -65,8 +78,9 @@ public class ShoppingCartController {
         }
     }
 
-    @DeleteMapping("/{userId}/clear")
-    public ResponseEntity<String> clearCart(@PathVariable int userId) {
+    @DeleteMapping("/clear")
+    public ResponseEntity<String> clearCart(@RequestHeader("Authorization") String authHeader) {
+        Integer userId = extractUserIdFromHeader(authHeader);
         try {
             cartService.clearCart(userId);
             return ResponseEntity.ok("Cart cleared successfully.");
