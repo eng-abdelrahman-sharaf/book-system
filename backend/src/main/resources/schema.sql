@@ -1,4 +1,4 @@
-create type role_enum as ENUM('Admin', 'Customer');
+-- create type role_enum as ENUM('Admin', 'Customer');
 CREATE TABLE IF NOT EXISTS Users
 (
     user_id          INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS Publishers
     address      VARCHAR(255),
     phone        VARCHAR(20)
 );
-create type category_type as ENUM('Science', 'Art', 'Religion', 'History', 'Geography');
+-- create type category_type as ENUM('Science', 'Art', 'Religion', 'History', 'Geography');
 CREATE TABLE IF NOT EXISTS Books
 (
     isbn            VARCHAR(20) PRIMARY KEY,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS BookAuthors
     FOREIGN KEY (isbn) REFERENCES Books (isbn),
     FOREIGN KEY (author_id) REFERENCES Authors (author_id)
 );
-CREATE TYPE order_status AS ENUM ('Pending', 'Confirmed');
+-- CREATE TYPE order_status AS ENUM ('Pending', 'Confirmed');
 CREATE TABLE IF NOT EXISTS PublisherOrders
 (
     order_id   INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

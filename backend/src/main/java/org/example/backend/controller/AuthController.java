@@ -3,16 +3,14 @@ package org.example.backend.controller;
 import org.example.backend.model.dto.LoginRequest;
 import org.example.backend.model.dto.LoginResponse;
 
+import org.example.backend.model.dto.LogoutRequest;
 import org.example.backend.model.dto.SignupRequest;
 import org.example.backend.model.entity.User;
 import org.example.backend.service.AuthService;
 import org.example.backend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +20,8 @@ import java.util.Map;
 public class AuthController {
     private final UserService userService;
     private final AuthService authService;
+
+
     public AuthController(UserService userService, AuthService authService) {
         this.userService = userService;
         this.authService = authService;
@@ -63,19 +63,29 @@ public class AuthController {
         }
     }
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request){
-        try{
-            String token = userService.login(request);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "User login successfully");
-            response.put("token", token);
-
-            return ResponseEntity.ok(response);
-
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request){
+        try {
+            LoginResponse token = userService.login(request);
+            return ResponseEntity.ok(token);  // return the DTO directly
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // or handle with @ControllerAdvice
         }
-        catch (IllegalArgumentException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody LogoutRequest request
+    ) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Missing or invalid Authorization header");
         }
+
+        authService.logout(request.getRefreshToken());
+
+        return ResponseEntity.ok("Logged out successfully");
     }
 
 }

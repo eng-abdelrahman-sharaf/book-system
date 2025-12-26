@@ -2,11 +2,13 @@ package org.example.backend.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.backend.Repository.RefreshTokenRepository;
 import org.example.backend.Repository.UserRepository;
 import org.example.backend.config.JwtProperties;
 import org.example.backend.mapper.UserSignupMapper;
 import org.example.backend.mapper.UserUpdateMapper;
 import org.example.backend.model.dto.LoginRequest;
+import org.example.backend.model.dto.LoginResponse;
 import org.example.backend.model.dto.SignupRequest;
 import org.example.backend.model.dto.UserUpdate;
 import org.example.backend.model.entity.User;
@@ -16,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
@@ -24,14 +28,19 @@ public class UserService {
     private final UserSignupMapper userSignupMapper;
     private final AuthService authService;
     private final UserUpdateMapper userUpdateMapper;
+    private final JwtService jwtService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserSignupMapper userSignupMapper, AuthService authService, UserUpdateMapper userUpdateMapper) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserSignupMapper userSignupMapper, AuthService authService, UserUpdateMapper userUpdateMapper, JwtService jwtService, RefreshTokenRepository refreshTokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userSignupMapper = userSignupMapper;
         this.authService = authService;
         this.userUpdateMapper = userUpdateMapper;
+        this.jwtService = jwtService;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
+
 
     @Transactional
     public User signup (SignupRequest signupRequest){
@@ -47,20 +56,24 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.create(user);
     }
-    public String login (LoginRequest loginRequest){
+    public LoginResponse login (LoginRequest loginRequest){
         String username= loginRequest.getUsername();
         String password = loginRequest.getPassword();
         User temp=userRepository.get(username);
         if(!passwordEncoder.matches(password,temp.getPassword())){
             throw new IllegalArgumentException("invalid password");
         }
-        User user=new User();
-        user.setRole(temp.getRole());
-        user.setUserId(temp.getUserId());
-        user.setFirstName(temp.getFirstName());
-        JwtProperties jwtProperties = new JwtProperties();
-        JwtService jwtService =new JwtService(jwtProperties);
-        return jwtService.generateAccessToken(temp.getUserId(),temp.getFirstName(),temp.getRole());
+        String accessToken = jwtService.generateAccessToken(temp.getUserId(), temp.getFirstName(), temp.getRole());
+
+        // 4️⃣ Generate refresh token
+        String refreshToken = jwtService.generateRefreshToken(temp.getUserId(), temp.getFirstName());
+
+        // 5️⃣ Save refresh token in DB
+        LocalDateTime expiresAt = LocalDateTime.now().plusDays(7); // e.g., 7 days
+        refreshTokenRepository.save(temp.getUserId(), refreshToken, expiresAt);
+
+        // 6️⃣ Return both tokens
+        return new LoginResponse(accessToken, refreshToken);
     }
     @Transactional
     public User update(UserUpdate userUpdate){

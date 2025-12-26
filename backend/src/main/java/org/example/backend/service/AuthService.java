@@ -20,17 +20,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ShoppingCartService shoppingCartService;
 
-    public AuthService(
-            UserRepository userRepository,
-            JwtService jwtService,
-            RefreshTokenRepository refreshTokenRepository
-    ) {
+    public AuthService(UserRepository userRepository, JwtService jwtService, RefreshTokenRepository refreshTokenRepository, ShoppingCartService shoppingCartService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.shoppingCartService = shoppingCartService;
     }
-
 
     // Refreshes an access token using a valid refresh token.
     // Implements token rotation: old refresh token is deleted and a new one is issued.
@@ -73,5 +70,28 @@ public class AuthService {
 
         return new LoginResponse(newAccessToken, newRefreshToken);
     }
+
+    @Transactional
+    public void logout(String refreshToken) {
+        int userId = jwtService.extractUserId(refreshToken);
+        if (!jwtService.validateToken(refreshToken)) {
+            throw new IllegalArgumentException("Invalid refresh token");
+        }
+
+        String tokenType = jwtService.extractTokenType(refreshToken);
+        if (!"refresh".equals(tokenType)) {
+            throw new IllegalArgumentException("Invalid token type");
+        }
+
+        if (!refreshTokenRepository.existsByToken(refreshToken)) {
+            throw new IllegalArgumentException("Refresh token already invalidated");
+        }
+
+        refreshTokenRepository.deleteByToken(refreshToken);
+        System.out.println(userId);
+        shoppingCartService.clearCart(userId);
+    }
+
+
 
 }
