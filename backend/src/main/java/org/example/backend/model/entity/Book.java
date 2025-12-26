@@ -1,18 +1,21 @@
 package org.example.backend.model.entity;
 
-import org.example.backend.model.enums.CategoryType;
+import org.example.backend.model.enums.Category;
 
 public class Book {
     private String isbn;
     private String title;
-    private int publisherId;
-    private Integer publicationYear; // nullable
-    private double sellingPrice;
-    private CategoryType category;
-    private int numberOfBooks;
-    private int threshold;
+    private Integer publisherId;
+    private Integer publicationYear;
+    private Float sellingPrice;
+    private Category category;
+    private Integer numberOfBooks;
+    private Integer threshold;
 
-    public Book(String isbn, String title, int publisherId, Integer publicationYear, double sellingPrice, CategoryType category, int numberOfBooks, int threshold) {
+    public Book() {
+    }
+
+    public Book(String isbn, String title, Integer publisherId, Integer publicationYear, Float sellingPrice, Category category, Integer numberOfBooks, Integer threshold) {
         this.isbn = isbn;
         this.title = title;
         this.publisherId = publisherId;
@@ -23,70 +26,67 @@ public class Book {
         this.threshold = threshold;
     }
 
-    public Book() {
-    }
-
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public Category getCategory() {
+        return category;
     }
 
-    public int getPublisherId() {
-        return publisherId;
-    }
-
-    public void setPublisherId(int publisherId) {
-        this.publisherId = publisherId;
+    public Float getSellingPrice() {
+        return sellingPrice;
     }
 
     public Integer getPublicationYear() {
         return publicationYear;
     }
 
+    public Integer getNumberOfBooks() {
+        return numberOfBooks;
+    }
+
+    public Integer getPublisherId() {
+        return publisherId;
+    }
+
+    public Integer getThreshold() {
+        return threshold;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public void setNumberOfBooks(Integer numberOfBooks) {
+        this.numberOfBooks = numberOfBooks;
+    }
+
     public void setPublicationYear(Integer publicationYear) {
         this.publicationYear = publicationYear;
     }
 
-    public double getSellingPrice() {
-        return sellingPrice;
+    public void setPublisherId(Integer publisherId) {
+        this.publisherId = publisherId;
     }
 
-    public void setSellingPrice(double sellingPrice) {
+    public void setSellingPrice(Float sellingPrice) {
         this.sellingPrice = sellingPrice;
     }
 
-    public CategoryType getCategory() {
-        return category;
-    }
-
-    public void setCategory(CategoryType category) {
-        this.category = category;
-    }
-
-    public int getNumberOfBooks() {
-        return numberOfBooks;
-    }
-
-    public void setNumberOfBooks(int numberOfBooks) {
-        this.numberOfBooks = numberOfBooks;
-    }
-
-    public int getThreshold() {
-        return threshold;
-    }
-
-    public void setThreshold(int threshold) {
+    public void setThreshold(Integer threshold) {
         this.threshold = threshold;
     }
 }

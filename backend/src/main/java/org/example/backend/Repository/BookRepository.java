@@ -1,82 +1,128 @@
 package org.example.backend.Repository;
 
+import org.example.backend.mapper.BookRowMapper;
 import org.example.backend.model.entity.Book;
-import org.example.backend.model.enums.CategoryType;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class BookRepository {
     private final JdbcTemplate jdbcTemplate;
-
     public BookRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private final RowMapper<Book> bookRowMapper = (ResultSet rs, int rowNum) -> {
-        Book book = new Book();
-        book.setIsbn(rs.getString("isbn"));
-        book.setTitle(rs.getString("title"));
-        book.setPublisherId(rs.getInt("publisher_id"));
-        book.setPublicationYear(rs.getObject("publication_year", Integer.class));
-        book.setSellingPrice(rs.getDouble("selling_price"));
-        book.setCategory(CategoryType.valueOf(rs.getString("category")));
-        book.setNumberOfBooks(rs.getInt("number_of_books"));
-        book.setThreshold(rs.getInt("threshold"));
-        return book;
-    };
-    public Book findByIsbn(String isbn) {
-        String sql = "SELECT * FROM Books WHERE isbn = ?";
-        return jdbcTemplate.queryForObject(sql, bookRowMapper, isbn);
-    }
-    public List<Book> findAll() {
-        return jdbcTemplate.query("SELECT * FROM Books", bookRowMapper);
-    }
-    public List<Book> findByCategory(CategoryType category) {
-        String sql = "SELECT * FROM Books WHERE category = ?";
-        return jdbcTemplate.query(sql, bookRowMapper, category.name());
-    }
+    public Book create(Book book) {
+        String query = "INSERT INTO books (isbn, title, publisher_id, publication_year, selling_price, category, number_of_books, threshold) VALUES (?, ?, ?, ?, ?, ?::category_type, ?, ?)";
 
-    public List<Book> findByPublisher(int publisherId) {
-        String sql = "SELECT * FROM Books WHERE publisher_id = ?";
-        return jdbcTemplate.query(sql, bookRowMapper, publisherId);
-    }
-    public Book create(Book book){
-        String sql = """
-        insert into books (isbn, title, publisher_id, publication_year,
-        selling_price, category, number_of_books, threshold)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """;
-        jdbcTemplate.update(book.getIsbn(),
+        Integer numberOfBooks = book.getNumberOfBooks() != null ? book.getNumberOfBooks() : 0;
+        Integer threshold = book.getThreshold() != null ? book.getThreshold() : 5;
+
+        book.setNumberOfBooks(numberOfBooks);
+        book.setThreshold(threshold);
+
+        jdbcTemplate.update(
+                query,
+                book.getIsbn(),
                 book.getTitle(),
                 book.getPublisherId(),
-                book.getPublicationYear(),
+                book.getPublicationYear(),           // nullable is ok
                 book.getSellingPrice(),
-                book.getCategory().name(),
-                book.getNumberOfBooks(),
-                book.getThreshold());
-        return findByIsbn(book.getIsbn());
+            book.getCategory().name(),           // enum to string
+            numberOfBooks,
+            threshold
+        );
+        return book;
     }
-    public int deleteByIsbn(String isbn) {
-        String sql = "DELETE FROM Books WHERE isbn = ?";
-        return jdbcTemplate.update(sql, isbn);
+
+    public Book update(Book book) {
+        StringBuilder queryBuilder = new StringBuilder("UPDATE books SET ");
+        List<Object> params = new ArrayList<>();
+        
+        boolean first = true;
+        if (book.getTitle() != null) {
+            if (!first) queryBuilder.append(", ");
+            queryBuilder.append("title = ?");
+            params.add(book.getTitle());
+            first = false;
+        }
+        if (book.getPublisherId() != null) {
+            if (!first) queryBuilder.append(", ");
+            queryBuilder.append("publisher_id = ?");
+            params.add(book.getPublisherId());
+            first = false;
+        }
+        if (book.getPublicationYear() != null) {
+            if (!first) queryBuilder.append(", ");
+            queryBuilder.append("publication_year = ?");
+            params.add(book.getPublicationYear());
+            first = false;
+        }
+        if (book.getSellingPrice() != null) {
+            if (!first) queryBuilder.append(", ");
+            queryBuilder.append("selling_price = ?");
+            params.add(book.getSellingPrice());
+            first = false;
+        }
+        if (book.getCategory() != null) {
+            if (!first) queryBuilder.append(", ");
+            queryBuilder.append("category = ?::category_type");
+            params.add(book.getCategory().name());
+            first = false;
+        }
+        if (book.getNumberOfBooks() != null) {
+            if (!first) queryBuilder.append(", ");
+            queryBuilder.append("number_of_books = ?");
+            params.add(book.getNumberOfBooks());
+            first = false;
+        }
+        if (book.getThreshold() != null) {
+            if (!first) queryBuilder.append(", ");
+            queryBuilder.append("threshold = ?");
+            params.add(book.getThreshold());
+            first = false;
+        }
+        
+        if (params.isEmpty()) {
+            throw new IllegalArgumentException("No fields provided for update");
+        }
+
+        queryBuilder.append(" WHERE isbn = ?");
+        params.add(book.getIsbn());
+
+        jdbcTemplate.update(queryBuilder.toString(), params.toArray());
+        return book;
+    }
+
+    public void delete(String isbn) {
+        String query = "DELETE FROM books WHERE isbn = ?";
+        this.jdbcTemplate.update(query, isbn);
+    }
+
+    public List<Book> 
+      All() {
+        String query = "SELECT * FROM books";
+        List<Book> books = this.jdbcTemplate.query(query, new BookRowMapper());
+        return  books;
+    }
+
+    public Book read(String isbn) {
+        String query = "SELECT * FROM books WHERE isbn = ?";
+        List<Book> books = this.jdbcTemplate.query(query, new BookRowMapper(), isbn);
+        return books.stream().findFirst().orElse(null);
     }
 
     public boolean existsByIsbn(String isbn) {
-        String sql = "SELECT COUNT(*) FROM Books WHERE isbn = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, isbn);
+        String query = "SELECT COUNT(*) FROM books WHERE isbn = ?";
+        Integer count = jdbcTemplate.queryForObject(query, Integer.class, isbn);
         return count != null && count > 0;
     }
-
-    public long count() {
-        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM Books", Long.class);
-    }
-    public void deductStock(String isbn, int quantity) {
+  public void deductStock(String isbn, int quantity) {
         String sql = "UPDATE Books SET number_of_books = number_of_books - ? WHERE isbn = ?";
         jdbcTemplate.update(sql, quantity, isbn);
     }
+
 }
