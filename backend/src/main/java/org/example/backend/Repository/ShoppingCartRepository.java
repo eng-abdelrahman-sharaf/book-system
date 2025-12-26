@@ -92,7 +92,7 @@ public class ShoppingCartRepository {
 
     public double getCartTotalPrice(int cartId) {
         String sql = """
-            SELECT SUM(b.selling_price * sci.quantity) AS total
+            SELECT COALESCE(SUM(b.selling_price * sci.quantity),0) AS total
             FROM ShoppingCartItems sci
             JOIN Books b ON sci.isbn = b.isbn
             WHERE sci.cart_id = ?

@@ -2,6 +2,7 @@ package org.example.backend.Repository;
 
 import org.example.backend.model.entity.User;
 import org.example.backend.model.enums.Role;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -53,26 +54,34 @@ public class UserRepository {
         return returned;
     }
 
-    public User get(String username){
-        String query = "select * from users where username = ?";
-        User user = jdbcTemplate.queryForObject(query, new Object[]{
-                username,
-        }, new RowMapper<User>() {
-            @Override
-            public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                User tempuser = new User();
-                tempuser.setUserId(rs.getInt("user_id"));
-                tempuser.setPassword(rs.getString("password"));
-                tempuser.setFirstName(rs.getString("first_name"));
-                if(Objects.equals(rs.getString("role"), "Admin"))
-                    tempuser.setRole(Role.Admin);
-                else if(Objects.equals(rs.getString("role"), "Customer"))
-                    tempuser.setRole(Role.Customer);
-                return tempuser;
-            }
-        });
-        return user;
+    public Optional<User> getByUsername(String username) {
+        String query = "SELECT * FROM users WHERE username = ?";
+
+        try {
+            User user = jdbcTemplate.queryForObject(
+                    query,
+                    new Object[]{username},
+                    (rs, rowNum) -> {
+                        User tempUser = new User();
+                        tempUser.setUserId(rs.getInt("user_id"));
+                        tempUser.setPassword(rs.getString("password"));
+                        tempUser.setFirstName(rs.getString("first_name"));
+
+                        String role = rs.getString("role");
+                        if ("Admin".equals(role))
+                            tempUser.setRole(Role.Admin);
+                        else if ("Customer".equals(role))
+                            tempUser.setRole(Role.Customer);
+
+                        return tempUser;
+                    }
+            );
+            return Optional.of(user);
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
+
 
     public Optional<User> findByUsername(String username) {
         String query = "SELECT user_id, username, password, first_name, last_name, email, phone, shipping_address, role, created_at " +

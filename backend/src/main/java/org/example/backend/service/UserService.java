@@ -30,8 +30,9 @@ public class UserService {
     private final UserUpdateMapper userUpdateMapper;
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ShoppingCartService shoppingCartService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserSignupMapper userSignupMapper, AuthService authService, UserUpdateMapper userUpdateMapper, JwtService jwtService, RefreshTokenRepository refreshTokenRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserSignupMapper userSignupMapper, AuthService authService, UserUpdateMapper userUpdateMapper, JwtService jwtService, RefreshTokenRepository refreshTokenRepository, ShoppingCartService shoppingCartService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userSignupMapper = userSignupMapper;
@@ -39,8 +40,8 @@ public class UserService {
         this.userUpdateMapper = userUpdateMapper;
         this.jwtService = jwtService;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.shoppingCartService = shoppingCartService;
     }
-
 
     @Transactional
     public User signup (SignupRequest signupRequest){
@@ -59,7 +60,8 @@ public class UserService {
     public LoginResponse login (LoginRequest loginRequest){
         String username= loginRequest.getUsername();
         String password = loginRequest.getPassword();
-        User temp=userRepository.get(username);
+        User temp = userRepository.getByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
         if(!passwordEncoder.matches(password,temp.getPassword())){
             throw new IllegalArgumentException("invalid password");
         }
@@ -71,7 +73,7 @@ public class UserService {
         // 5️⃣ Save refresh token in DB
         LocalDateTime expiresAt = LocalDateTime.now().plusDays(7); // e.g., 7 days
         refreshTokenRepository.save(temp.getUserId(), refreshToken, expiresAt);
-
+        shoppingCartService.getOrCreateCart(temp.getUserId());
         // 6️⃣ Return both tokens
         return new LoginResponse(accessToken, refreshToken);
     }

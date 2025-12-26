@@ -40,7 +40,10 @@ public class ShoppingCartService {
 
     public double getCartTotal(int userId) {
         ShoppingCart cart = getOrCreateCart(userId);
-        return shoppingCartRepository.getCartTotalPrice(cart.getCartId());
+        System.out.println("tot");
+        double tot =shoppingCartRepository.getCartTotalPrice(cart.getCartId());
+        System.out.println(tot);
+        return tot;
     }
 
     public void clearCart(int userId) {

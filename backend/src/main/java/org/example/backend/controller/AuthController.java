@@ -72,12 +72,13 @@ public class AuthController {
         }
     }
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request){
+    public ResponseEntity<?> login(@RequestBody LoginRequest request){
         try {
             LoginResponse token = userService.login(request);
+
             return ResponseEntity.ok(token);  // return the DTO directly
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);  // or handle with @ControllerAdvice
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  // or handle with @ControllerAdvice
         }
     }
 

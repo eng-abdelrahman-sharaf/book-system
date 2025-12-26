@@ -25,7 +25,7 @@ const PasswordPage: React.FC = () => {
             return;
         }
 
-        const payload: ChangePasswordRequest = { userId, currentPassword, newPassword };
+        const payload: ChangePasswordRequest = {currentPassword, newPassword };
 
         try {
             const result = await updatePassword(payload);

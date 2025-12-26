@@ -76,13 +76,8 @@ public class UserController {
         try {
             Integer userIdFromToken = extractUserId(authHeader);
 
-            if (!userIdFromToken.equals(request.getUserId())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body("You can only change your own password");
-            }
-
             userService.updatePassword(
-                    request.getUserId(),
+                    userIdFromToken,
                     request.getCurrentPassword(),
                     request.getNewPassword()
             );
