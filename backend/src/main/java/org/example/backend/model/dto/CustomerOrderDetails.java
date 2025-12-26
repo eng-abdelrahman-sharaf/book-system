@@ -10,26 +10,16 @@ public class CustomerOrderDetails {
     private int orderId;
     private LocalDateTime orderDate;
     private double totalAmount;
-    private List<CustomerOrderItem> items;
-    private String title;
+    private List<BookItem> items;
 
     public CustomerOrderDetails() {
     }
 
-    public CustomerOrderDetails(int orderId, LocalDateTime orderDate, double totalAmount, List<CustomerOrderItem> items, String title) {
+    public CustomerOrderDetails(int orderId, LocalDateTime orderDate, double totalAmount, List<BookItem> items) {
         this.orderId = orderId;
         this.orderDate = orderDate;
         this.totalAmount = totalAmount;
         this.items = items;
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public int getOrderId() {
@@ -40,14 +30,6 @@ public class CustomerOrderDetails {
         this.orderId = orderId;
     }
 
-    public double getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(double totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
     public LocalDateTime getOrderDate() {
         return orderDate;
     }
@@ -56,11 +38,20 @@ public class CustomerOrderDetails {
         this.orderDate = orderDate;
     }
 
-    public List<CustomerOrderItem> getItems() {
+    public List<BookItem> getItems() {
         return items;
     }
 
-    public void setItems(List<CustomerOrderItem> items) {
+    public void setItems(List<BookItem> items) {
         this.items = items;
     }
+
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
 }

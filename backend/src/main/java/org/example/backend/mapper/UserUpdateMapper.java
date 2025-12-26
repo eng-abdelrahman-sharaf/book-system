@@ -18,4 +18,15 @@ public class UserUpdateMapper {
         user.setUsername(dto.getUsername());
         return user;
     }
+    public UserUpdate toUserUpdate(User user){
+        UserUpdate userU = new UserUpdate();
+        userU.setFirstName(user.getFirstName());
+        userU.setLastName(user.getLastName());
+        userU.setEmail(user.getEmail());
+        userU.setPhone(user.getPhone());
+        userU.setShippingAddress(user.getShippingAddress());
+        userU.setUserId(user.getUserId());
+        userU.setUsername(user.getUsername());
+        return userU;
+    }
 }

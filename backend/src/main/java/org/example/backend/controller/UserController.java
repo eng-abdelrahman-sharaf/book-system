@@ -29,36 +29,73 @@ public class UserController {
             @RequestHeader("Authorization") String authHeader,
             @RequestBody UserUpdate userUpdate) {
 
-        Integer userIdFromToken = extractUserId(authHeader);
+        try {
+            Integer userIdFromToken = extractUserId(authHeader);
 
-        if (!userIdFromToken.equals(userUpdate.getUserId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("You can only update your own profile");
+            if (!userIdFromToken.equals(userUpdate.getUserId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only update your own profile");
+            }
+
+            userService.update(userUpdate);
+            return ResponseEntity.ok("Profile updated successfully");
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Unexpected server error");
         }
-
-        User user = userService.update(userUpdate);
-        return ResponseEntity.ok("User profile updated successfully: " + user.getUsername());
     }
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(@RequestHeader("Authorization") String authHeader) {
+        try {
+            Integer userId = extractUserId(authHeader);
 
+            UserUpdate profile = userService.getUser(userId);
+
+            return ResponseEntity.ok(profile);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Unexpected server error");
+        }
+    }
     @PutMapping("/password")
     public ResponseEntity<?> updatePassword(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody ChangePasswordRequest request) {
 
-        Integer userIdFromToken = extractUserId(authHeader);
+        try {
+            Integer userIdFromToken = extractUserId(authHeader);
 
-        if (!userIdFromToken.equals(request.getUserId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("You can only change your own password");
+            if (!userIdFromToken.equals(request.getUserId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("You can only change your own password");
+            }
+
+            userService.updatePassword(
+                    request.getUserId(),
+                    request.getCurrentPassword(),
+                    request.getNewPassword()
+            );
+
+            return ResponseEntity.ok("Password updated successfully");
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Unexpected server error");
         }
-
-        User user = userService.updatePassword(
-                request.getUserId(),
-                request.getCurrentPassword(),
-                request.getNewPassword()
-        );
-
-        return ResponseEntity.ok("Password updated successfully: " + user.getUsername());
     }
 
     @PutMapping("/make-admin/{userId}")
@@ -66,15 +103,24 @@ public class UserController {
             @RequestHeader("Authorization") String authHeader,
             @PathVariable int userId) {
 
-        Role roleFromToken = extractRole(authHeader);
+        try {
+            Role role = extractRole(authHeader);
 
-        if (roleFromToken != Role.Admin) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Only admins can promote users");
+            if (role != Role.Admin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Only admins can promote users");
+            }
+
+            userService.makeAdmin(userId);
+            return ResponseEntity.ok("User promoted to admin successfully");
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Unexpected server error");
         }
-
-        User user = userService.makeAdmin(userId);
-        return ResponseEntity.ok("User " + user.getUsername() + " is now an admin.");
     }
 
     @PutMapping("/dismiss-admin/{userId}")
@@ -82,21 +128,30 @@ public class UserController {
             @RequestHeader("Authorization") String authHeader,
             @PathVariable int userId) {
 
-        Integer requesterId = extractUserId(authHeader);
-        Role roleFromToken = extractRole(authHeader);
+        try {
+            Integer requesterId = extractUserId(authHeader);
+            Role role = extractRole(authHeader);
 
-        if (roleFromToken != Role.Admin) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Only admins can dismiss admins");
+            if (role != Role.Admin) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Only admins can dismiss admins");
+            }
+
+            if (requesterId == userId) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Admin cannot dismiss himself");
+            }
+
+            userService.dismissAdmin(userId);
+            return ResponseEntity.ok("Admin dismissed successfully");
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Unexpected server error");
         }
-
-        if (requesterId == userId) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Admin cannot dismiss himself");
-        }
-
-        User user = userService.dismissAdmin(userId);
-        return ResponseEntity.ok("User " + user.getUsername() + " is no longer an admin.");
     }
 
     private Integer extractUserId(String authHeader) {

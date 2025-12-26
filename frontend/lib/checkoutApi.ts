@@ -1,7 +1,7 @@
 'use server';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/v1/api";
-const ACCESS_TOKEN = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJKb2huIiwidXNlcklkIjoxMSwicm9sZSI6IkN1c3RvbWVyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc2Njc1NzQ5NiwiZXhwIjoxNzY2NzYxMDk2fQ.s6KisSulUkBTEvvXaOO3_9SVTUULMa_un3rKrVwdI138biHpp2HjpyY_c9oXyCKMlLlB_DWtgId5ZOntWgYa5Q"; // your token
+const ACCESS_TOKEN = "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJKb2huIiwidXNlcklkIjoxMSwicm9sZSI6IkN1c3RvbWVyIiwidHlwZSI6ImFjY2VzcyIsImlhdCI6MTc2Njc2NDM3NywiZXhwIjoxNzY2NzY3OTc3fQ.BX5_HXqn1IBjv6iAsnvBJ_iGFjiviriLHG0GOfGfWQewaYxLKD7YMmvRbKSK1LG1snu2SjS9u3gfTyTrDI6hcA"; // your token
 
 export interface CheckoutRequest {
     cardNumber?: string;

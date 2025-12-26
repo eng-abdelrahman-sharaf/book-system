@@ -29,8 +29,7 @@ public class CustomerOrderController {
         Integer userId = extractUserId(authHeader);
         Role role = extractRole(authHeader);
 
-        // If later you want admin to view others, this is where it goes
-        // For now: customers only see their own orders
+
 
         List<CustomerOrderDetails> orders =
                 customerOrderService.getPastOrders(userId);

@@ -1,5 +1,6 @@
 package org.example.backend.Repository;
 
+import org.example.backend.model.dto.BookItem;
 import org.example.backend.model.dto.CustomerOrderDetails;
 import org.example.backend.model.entity.CustomerOrder;
 import org.example.backend.model.entity.CustomerOrderItem;
@@ -92,7 +93,6 @@ public class CustomerOrderRepository {
                     order.setOrderId(orderId);
                     order.setOrderDate(rs.getTimestamp("order_date").toLocalDateTime());
                     order.setTotalAmount(rs.getDouble("total_amount"));
-                    order.setTitle(rs.getString("title"));
                     order.setItems(new ArrayList<>());
                     map.put(orderId, order);
                 }
@@ -100,12 +100,12 @@ public class CustomerOrderRepository {
                 // Add item if exists
                 String isbn = rs.getString("isbn");
                 if (isbn != null) {
-                    CustomerOrderItem item = new CustomerOrderItem();
+                    BookItem item = new BookItem();
                     item.setOrderId(orderId);
                     item.setIsbn(isbn);
                     item.setQuantity(rs.getInt("quantity"));
                     item.setPrice(rs.getDouble("price"));
-
+                    item.setTitle(rs.getString("title"));
                     order.getItems().add(item);
                 }
             }

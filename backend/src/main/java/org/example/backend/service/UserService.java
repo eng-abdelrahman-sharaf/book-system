@@ -98,7 +98,13 @@ public class UserService {
         String hashed = passwordEncoder.encode(newPassword);
         return userRepository.updatePassword(userId,hashed);
     }
-
+    public User findById(int userId){
+        return userRepository.findById(userId);
+    }
+    public UserUpdate getUser(int userId){
+        User user = findById(userId);
+        return userUpdateMapper.toUserUpdate(user);
+    }
     public User makeAdmin (int userId){
         return userRepository.makeAdmin(userId);
     }
