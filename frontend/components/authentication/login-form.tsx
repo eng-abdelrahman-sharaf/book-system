@@ -45,7 +45,7 @@ export default function LoginForm() {
             toast.success("Logged in successfully!");
             
             // Redirect to home after successful login
-            window.location.href = "/";
+            window.location.href = "/home";
         } catch (error) {
             toast.error(error instanceof Error ? error.message : "Failed to log in");
         }

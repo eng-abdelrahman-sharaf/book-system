@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "jwt")
 public class JwtProperties {
     private String secret = "change-in-production-change-in-production-change-in-production-change-in-production";
-    private long accessTokenExpirationMinutes = 60; //just for testing
+    private long accessTokenExpirationMinutes = 120; //just for testing
     private long refreshTokenExpirationDays = 7;
 
     public String getSecret() {
