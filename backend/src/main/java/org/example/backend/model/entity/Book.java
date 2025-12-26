@@ -7,7 +7,7 @@ public class Book {
     private String title;
     private Integer publisherId;
     private Integer publicationYear;
-    private Float sellingPrice;
+    private Double sellingPrice;
     private Category category;
     private Integer numberOfBooks;
     private Integer threshold;
@@ -15,7 +15,7 @@ public class Book {
     public Book() {
     }
 
-    public Book(String isbn, String title, Integer publisherId, Integer publicationYear, Float sellingPrice, Category category, Integer numberOfBooks, Integer threshold) {
+    public Book(String isbn, String title, Integer publisherId, Integer publicationYear, Double sellingPrice, Category category, Integer numberOfBooks, Integer threshold) {
         this.isbn = isbn;
         this.title = title;
         this.publisherId = publisherId;
@@ -34,7 +34,7 @@ public class Book {
         return category;
     }
 
-    public Float getSellingPrice() {
+    public Double getSellingPrice() {
         return sellingPrice;
     }
 
@@ -82,7 +82,7 @@ public class Book {
         this.publisherId = publisherId;
     }
 
-    public void setSellingPrice(Float sellingPrice) {
+    public void setSellingPrice(Double sellingPrice) {
         this.sellingPrice = sellingPrice;
     }
 

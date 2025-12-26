@@ -102,8 +102,7 @@ public class BookRepository {
         this.jdbcTemplate.update(query, isbn);
     }
 
-    public List<Book> 
-      All() {
+    public List<Book> readAll() {
         String query = "SELECT * FROM books";
         List<Book> books = this.jdbcTemplate.query(query, new BookRowMapper());
         return  books;

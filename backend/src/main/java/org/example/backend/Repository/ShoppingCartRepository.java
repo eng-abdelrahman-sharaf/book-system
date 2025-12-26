@@ -4,7 +4,7 @@ import org.example.backend.model.dto.CartBookPrice;
 import org.example.backend.model.entity.Book;
 import org.example.backend.model.entity.ShoppingCart;
 import org.example.backend.model.entity.ShoppingCartItem;
-import org.example.backend.model.enums.CategoryType;
+import org.example.backend.model.enums.Category;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -40,7 +40,7 @@ public class ShoppingCartRepository {
         book.setPublisherId(rs.getInt("publisher_id"));
         book.setPublicationYear(rs.getObject("publication_year", Integer.class));
         book.setSellingPrice(rs.getDouble("selling_price"));
-        book.setCategory(CategoryType.valueOf(rs.getString("category")));
+        book.setCategory(Category.valueOf(rs.getString("category")));
         book.setNumberOfBooks(rs.getInt("number_of_books"));
         book.setThreshold(rs.getInt("threshold"));
         return book;

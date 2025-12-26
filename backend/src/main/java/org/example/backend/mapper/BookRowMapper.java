@@ -19,7 +19,7 @@ public class BookRowMapper implements RowMapper<Book> {
         result.setPublicationYear(rs.getObject("publication_year", Integer.class));
 
         BigDecimal price = rs.getBigDecimal("selling_price");
-        result.setSellingPrice(price != null ? price.floatValue() : null);
+        result.setSellingPrice(price != null ? price.doubleValue() : null);
 
         String category = rs.getString("category");
         if (category != null) {

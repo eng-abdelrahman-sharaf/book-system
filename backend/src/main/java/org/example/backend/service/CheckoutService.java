@@ -63,7 +63,7 @@ public class CheckoutService {
         }
         validateCreditCard(billingInfo.getCardNumber(), billingInfo.getExpirationDate());
         for (CartBookPrice item : cartItems) {
-            Book book = bookRepository.findByIsbn(item.getIsbn());
+            Book book = bookRepository.read(item.getIsbn());
             if (book.getNumberOfBooks() < item.getQuantity()) {
                 throw new RuntimeException("Insufficient stock for book: " + book.getTitle());
             }

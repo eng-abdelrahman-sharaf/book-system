@@ -1,20 +1,18 @@
 package org.example.backend.Repository;
 
-import org.example.backend.model.BookOrderHistory;
+import org.example.backend.model.dto.BookOrderHistory;
 import org.example.backend.model.dto.BookSalesHistory;
 import org.example.backend.model.dto.TotalSales;
 import org.example.backend.model.dto.customerHistory;
 import org.example.backend.model.entity.User;
-import org.example.backend.model.enums.Role;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+
 import org.example.backend.model.entity.Book;
 
 

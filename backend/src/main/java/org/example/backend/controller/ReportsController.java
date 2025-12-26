@@ -1,11 +1,9 @@
 package org.example.backend.controller;
 
-import org.example.backend.model.BookOrderHistory;
+import org.example.backend.model.dto.BookOrderHistory;
 import org.example.backend.model.dto.BookSalesHistory;
-import org.example.backend.model.dto.CustomerOrderDetails;
 import org.example.backend.model.dto.TotalSales;
 import org.example.backend.model.dto.customerHistory;
-import org.example.backend.service.CustomerOrderService;
 import org.example.backend.service.ReportsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

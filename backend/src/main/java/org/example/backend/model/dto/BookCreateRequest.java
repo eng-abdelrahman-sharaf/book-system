@@ -2,12 +2,14 @@ package org.example.backend.model.dto;
 
 import org.example.backend.model.enums.Category;
 
+import java.nio.DoubleBuffer;
+
 public class BookCreateRequest {
     private String isbn;
     private String title;
     private Integer publisherId;
     private Integer publicationYear;
-    private Float sellingPrice;
+    private Double sellingPrice;
     private Category category;
     private Integer numberOfBooks;
     private Integer threshold;
@@ -46,11 +48,11 @@ public class BookCreateRequest {
         this.publicationYear = publicationYear;
     }
 
-    public Float getSellingPrice() {
+    public Double getSellingPrice() {
         return sellingPrice;
     }
 
-    public void setSellingPrice(Float sellingPrice) {
+    public void setSellingPrice(Double sellingPrice) {
         this.sellingPrice = sellingPrice;
     }
 

@@ -1,4 +1,4 @@
-package org.example.backend.model;
+package org.example.backend.model.dto;
 
 import org.example.backend.model.entity.Book;
 

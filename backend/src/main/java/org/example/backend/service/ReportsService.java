@@ -1,7 +1,7 @@
 package org.example.backend.service;
 
 import org.example.backend.Repository.SalesRepository;
-import org.example.backend.model.BookOrderHistory;
+import org.example.backend.model.dto.BookOrderHistory;
 import org.example.backend.model.dto.BookSalesHistory;
 import org.example.backend.model.dto.TotalSales;
 import org.example.backend.model.dto.customerHistory;

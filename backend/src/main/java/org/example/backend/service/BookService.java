@@ -136,7 +136,7 @@ public class BookService {
         }
     }
 
-    private void validatePrice(Float price) {
+    private void validatePrice(Double price) {
         if (price == null || price <= 0) {
             throw new IllegalArgumentException("Selling price must be positive");
         }
