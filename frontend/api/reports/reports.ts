@@ -209,7 +209,7 @@ export const getAllUsers = async (
 ) => {
     
     const response = await fetch(
-        `http://localhost:8080/v1/api/user/all`,
+        `${BACKEND_URL}/v1/api/user/all`,
         {
             method: "GET",
             headers: {
@@ -243,7 +243,7 @@ export const makeUserAdmin = async (
 ) => {
     
     const response = await fetch(
-        `http://localhost:8080/v1/api/user/make-admin/${userId}`,
+        `${BACKEND_URL}/v1/api/user/make-admin/${userId}`,
         {
             method: "PUT",
             headers: {
@@ -277,7 +277,7 @@ export const dismissAdmin = async (
 ) => {
     
     const response = await fetch(
-        `http://localhost:8080/v1/api/user/dismiss-admin/${userId}`,
+        `${BACKEND_URL}/v1/api/user/dismiss-admin/${userId}`,
         {
             method: "PUT",
             headers: {

@@ -1,10 +1,20 @@
 import { getAccessToken, removeAccessToken, getRefreshToken, removeRefreshToken } from "./token-storage";
 import { responseErrorToString } from "./error";
 
-const BACKEND_URL =
-    process.env.BACKEND_URL ||
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    "http://localhost:8080/v1/api";
+function getBackendUrl(): string {
+    const baseUrl = process.env.BACKEND_URL ||
+        process.env.NEXT_PUBLIC_BACKEND_URL ||
+        "http://localhost:8080";
+    
+    const normalizedBase = baseUrl.replace(/\/$/, '');
+    
+    if (normalizedBase.endsWith('/v1/api')) {
+        return normalizedBase;
+    }
+    return `${normalizedBase}/v1/api`;
+}
+
+const BACKEND_URL = getBackendUrl();
 
 // Shared refresh promise to prevent concurrent refresh attempts
 let refreshPromise: Promise<boolean> | null = null;
