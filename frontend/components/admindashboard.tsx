@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Calendar, DollarSign, TrendingUp, Users, Package, ShoppingCart, Building2 } from 'lucide-react';
+import { Calendar, DollarSign, TrendingUp, Users, Package, ShoppingCart, Building2, BookOpen } from 'lucide-react';
 import axios from 'axios';
 import { redirect } from 'next/navigation';
 import { fetchBookReport, fetchTopBooks, fetchTopCustomers, fetchPreviousMonthSales, fetchDailySales,getAllbooks } from '@/api/reports/reports';
@@ -228,6 +228,14 @@ const AdminDashboard = () => {
             >
               <Building2 className="h-4 w-4" />
               Manage Publishers
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => router.push("/authors")}
+              className="flex items-center gap-2"
+            >
+              <BookOpen className="h-4 w-4" />
+              Manage Authors
             </Button>
             <Button
               variant="outline"

@@ -11,7 +11,8 @@ export type CreateBookPayload = {
     category: Book["category"];
     numberOfBooks?: number;
     threshold?: number;
-    authorName?: string | null;
+    authorIds?: number[]; // Preferred: list of author IDs
+    authorName?: string | null; // For backward compatibility: comma-separated author names
 };
 
 export async function createBook(payload: CreateBookPayload): Promise<void> {

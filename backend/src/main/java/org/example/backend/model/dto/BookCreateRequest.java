@@ -2,7 +2,7 @@ package org.example.backend.model.dto;
 
 import org.example.backend.model.enums.Category;
 
-import java.nio.DoubleBuffer;
+import java.util.List;
 
 public class BookCreateRequest {
     private String isbn;
@@ -13,6 +13,8 @@ public class BookCreateRequest {
     private Category category;
     private Integer numberOfBooks;
     private Integer threshold;
+    private List<Integer> authorIds;
+    private String authorName; // For backward compatibility
 
     public BookCreateRequest() {}
 
@@ -80,5 +82,19 @@ public class BookCreateRequest {
         this.threshold = threshold;
     }
 
+    public List<Integer> getAuthorIds() {
+        return authorIds;
+    }
 
+    public void setAuthorIds(List<Integer> authorIds) {
+        this.authorIds = authorIds;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
 }

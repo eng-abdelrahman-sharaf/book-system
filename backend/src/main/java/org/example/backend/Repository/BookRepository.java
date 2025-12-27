@@ -185,4 +185,22 @@ public class BookRepository {
         jdbcTemplate.update(sql, quantity, isbn);
     }
 
+    public void setBookAuthors(String isbn, List<Integer> authorIds) {
+        // Delete existing author relationships
+        deleteBookAuthors(isbn);
+        
+        // Insert new author relationships
+        if (authorIds != null && !authorIds.isEmpty()) {
+            String insertQuery = "INSERT INTO BookAuthors (isbn, author_id) VALUES (?, ?)";
+            for (Integer authorId : authorIds) {
+                jdbcTemplate.update(insertQuery, isbn, authorId);
+            }
+        }
+    }
+
+    public void deleteBookAuthors(String isbn) {
+        String query = "DELETE FROM BookAuthors WHERE isbn = ?";
+        jdbcTemplate.update(query, isbn);
+    }
+
 }

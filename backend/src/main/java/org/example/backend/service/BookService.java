@@ -1,5 +1,6 @@
 package org.example.backend.service;
 
+import org.example.backend.Repository.AuthorRepository;
 import org.example.backend.Repository.BookRepository;
 import org.example.backend.mapper.BookRequestMapper;
 import org.example.backend.model.dto.BookCreateRequest;
@@ -7,16 +8,20 @@ import org.example.backend.model.entity.Book;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
     private final BookRepository bookRepository;
     private final BookRequestMapper bookRequestMapper;
+    private final AuthorRepository authorRepository;
 
-    public BookService(BookRepository bookRepository, BookRequestMapper bookRequestMapper) {
+    public BookService(BookRepository bookRepository, BookRequestMapper bookRequestMapper, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
         this.bookRequestMapper = bookRequestMapper;
+        this.authorRepository = authorRepository;
     }
 
     @Transactional
@@ -28,7 +33,21 @@ public class BookService {
         }
 
         Book book = bookRequestMapper.toNewBook(request);
-        return bookRepository.create(book);
+        book = bookRepository.create(book);
+        
+        // Set author relationships
+        List<Integer> authorIdsToSet = getAuthorIds(request);
+        if (authorIdsToSet != null && !authorIdsToSet.isEmpty()) {
+            // Validate all author IDs exist
+            for (Integer authorId : authorIdsToSet) {
+                if (!authorRepository.existsById(authorId)) {
+                    throw new IllegalArgumentException("Author not found with ID: " + authorId);
+                }
+            }
+            bookRepository.setBookAuthors(book.getIsbn(), authorIdsToSet);
+        }
+        
+        return bookRepository.read(book.getIsbn());
     }
 
     @Transactional
@@ -41,7 +60,21 @@ public class BookService {
         }
 
         Book book = bookRequestMapper.toExistingBook(isbn, request);
-        return bookRepository.update(book);
+        book = bookRepository.update(book);
+        
+        // Update author relationships if provided
+        List<Integer> authorIdsToSet = getAuthorIds(request);
+        if (authorIdsToSet != null) {
+            // Validate all author IDs exist
+            for (Integer authorId : authorIdsToSet) {
+                if (!authorRepository.existsById(authorId)) {
+                    throw new IllegalArgumentException("Author not found with ID: " + authorId);
+                }
+            }
+            bookRepository.setBookAuthors(isbn, authorIdsToSet);
+        }
+        
+        return bookRepository.read(isbn);
     }
 
     public Book getBookByIsbn(String isbn) {
@@ -73,6 +106,8 @@ public class BookService {
             throw new IllegalArgumentException("Book not found with ISBN: " + isbn);
         }
 
+        // Delete author relationships first (though CASCADE should handle this)
+        bookRepository.deleteBookAuthors(isbn);
         bookRepository.delete(isbn);
     }
 
@@ -161,5 +196,24 @@ public class BookService {
         if (request.getThreshold() != null &&  request.getNumberOfBooks() != null && request.getThreshold() >  request.getNumberOfBooks()) {
             throw new IllegalArgumentException("Threshold cannot be greater than number of books");
         }
+    }
+
+    private List<Integer> getAuthorIds(BookCreateRequest request) {
+        if (request.getAuthorIds() != null && !request.getAuthorIds().isEmpty()) {
+            return request.getAuthorIds();
+        }
+        
+        // Backward compatibility: if authorName is provided, convert to author IDs
+        if (request.getAuthorName() != null && !request.getAuthorName().isBlank()) {
+            String[] authorNames = request.getAuthorName().split(",");
+            return authorRepository.findOrCreateByNames(
+                Arrays.stream(authorNames)
+                    .map(String::trim)
+                    .filter(name -> !name.isBlank())
+                    .collect(Collectors.toList())
+            );
+        }
+        
+        return null;
     }
 }

@@ -19,6 +19,8 @@ import { toast } from "react-hot-toast";
 import { XIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { getAllAuthors } from "@/api/authors/getAll";
+import { Author } from "@/types/author";
 
 const categories = [
     "Science",
@@ -39,6 +41,7 @@ export default function ManageBooksPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const modalOpen = editing !== null || creating;
 
+    const [authors, setAuthors] = useState<Author[]>([]);
     const [form, setForm] = useState<CreateBookPayload>({
         isbn: "",
         title: "",
@@ -48,7 +51,7 @@ export default function ManageBooksPage() {
         category: "Science",
         numberOfBooks: undefined,
         threshold: undefined,
-        authorName: null,
+        authorIds: [],
     });
 
     const load = async () => {
@@ -69,6 +72,15 @@ export default function ManageBooksPage() {
 
     useEffect(() => {
         load();
+        const loadAuthors = async () => {
+            try {
+                const data = await getAllAuthors();
+                setAuthors(data);
+            } catch (err) {
+                console.error("Failed to load authors:", err);
+            }
+        };
+        loadAuthors();
     }, []);
 
     useEffect(() => {
@@ -97,24 +109,74 @@ export default function ManageBooksPage() {
             category: "Science",
             numberOfBooks: undefined,
             threshold: undefined,
-            authorName: null,
+            authorIds: [],
         });
     };
 
-    const startEdit = (book: Book) => {
+    const startEdit = async (book: Book) => {
         setEditing(book);
         setCreating(false);
-        setForm({
-            isbn: book.isbn,
-            title: book.title,
-            publisherId: book.publisherId,
-            publicationYear: book.publicationYear ?? undefined,
-            sellingPrice: book.sellingPrice,
-            category: book.category as CreateBookPayload["category"],
-            numberOfBooks: book.numberOfBooks ?? undefined,
-            threshold: book.threshold ?? undefined,
-            authorName: book.authorName,
-        });
+        
+        // Ensure authors are loaded
+        if (authors.length === 0) {
+            try {
+                const loadedAuthors = await getAllAuthors();
+                setAuthors(loadedAuthors);
+                // Parse authorName to get author IDs (if authorName exists, try to match with authors)
+                let authorIds: number[] = [];
+                if (book.authorName) {
+                    const authorNames = book.authorName.split(",").map(name => name.trim());
+                    authorIds = loadedAuthors
+                        .filter(author => authorNames.includes(author.name))
+                        .map(author => author.authorId);
+                }
+                setForm({
+                    isbn: book.isbn,
+                    title: book.title,
+                    publisherId: book.publisherId,
+                    publicationYear: book.publicationYear ?? undefined,
+                    sellingPrice: book.sellingPrice,
+                    category: book.category as CreateBookPayload["category"],
+                    numberOfBooks: book.numberOfBooks ?? undefined,
+                    threshold: book.threshold ?? undefined,
+                    authorIds: authorIds,
+                });
+            } catch (err) {
+                console.error("Failed to load authors:", err);
+                // Set form without author IDs if loading fails
+                setForm({
+                    isbn: book.isbn,
+                    title: book.title,
+                    publisherId: book.publisherId,
+                    publicationYear: book.publicationYear ?? undefined,
+                    sellingPrice: book.sellingPrice,
+                    category: book.category as CreateBookPayload["category"],
+                    numberOfBooks: book.numberOfBooks ?? undefined,
+                    threshold: book.threshold ?? undefined,
+                    authorIds: [],
+                });
+            }
+        } else {
+            // Parse authorName to get author IDs (if authorName exists, try to match with authors)
+            let authorIds: number[] = [];
+            if (book.authorName) {
+                const authorNames = book.authorName.split(",").map(name => name.trim());
+                authorIds = authors
+                    .filter(author => authorNames.includes(author.name))
+                    .map(author => author.authorId);
+            }
+            setForm({
+                isbn: book.isbn,
+                title: book.title,
+                publisherId: book.publisherId,
+                publicationYear: book.publicationYear ?? undefined,
+                sellingPrice: book.sellingPrice,
+                category: book.category as CreateBookPayload["category"],
+                numberOfBooks: book.numberOfBooks ?? undefined,
+                threshold: book.threshold ?? undefined,
+                authorIds: authorIds,
+            });
+        }
     };
 
     const closeForm = () => {
@@ -290,20 +352,48 @@ export default function ManageBooksPage() {
                                     </div>
                                     <div>
                                         <label className="block text-sm mb-1">
-                                            Author
+                                            Authors
                                         </label>
-                                        <Input
-                                            value={form.authorName ?? ""}
-                                            onChange={(e) =>
-                                                setForm({
-                                                    ...form,
-                                                    authorName:
-                                                        e.target.value === ""
-                                                            ? null
-                                                            : e.target.value,
-                                                })
-                                            }
-                                        />
+                                        <div className="border rounded-md p-2 max-h-48 overflow-y-auto">
+                                            {authors.length === 0 ? (
+                                                <p className="text-sm text-gray-500">Loading authors...</p>
+                                            ) : (
+                                                authors.map((author) => (
+                                                    <label
+                                                        key={author.authorId}
+                                                        className="flex items-center space-x-2 py-1 cursor-pointer hover:bg-gray-50 rounded px-2"
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={form.authorIds?.includes(author.authorId) ?? false}
+                                                            onChange={(e) => {
+                                                                const currentIds = form.authorIds ?? [];
+                                                                if (e.target.checked) {
+                                                                    setForm({
+                                                                        ...form,
+                                                                        authorIds: [...currentIds, author.authorId],
+                                                                    });
+                                                                } else {
+                                                                    setForm({
+                                                                        ...form,
+                                                                        authorIds: currentIds.filter(
+                                                                            (id) => id !== author.authorId
+                                                                        ),
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className="rounded"
+                                                        />
+                                                        <span className="text-sm">{author.name}</span>
+                                                    </label>
+                                                ))
+                                            )}
+                                        </div>
+                                        {form.authorIds && form.authorIds.length > 0 && (
+                                            <p className="text-xs text-gray-500 mt-1">
+                                                {form.authorIds.length} author(s) selected
+                                            </p>
+                                        )}
                                     </div>
                                     <div>
                                         <label className="block text-sm mb-1">
