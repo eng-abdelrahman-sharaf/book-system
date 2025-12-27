@@ -6,6 +6,8 @@ public class Book {
     private String isbn;
     private String title;
     private Integer publisherId;
+    private String publisherName;
+    private String authorName;
     private Integer publicationYear;
     private Double sellingPrice;
     private Category category;
@@ -15,10 +17,12 @@ public class Book {
     public Book() {
     }
 
-    public Book(String isbn, String title, Integer publisherId, Integer publicationYear, Double sellingPrice, Category category, Integer numberOfBooks, Integer threshold) {
+    public Book(String isbn, String title, Integer publisherId, String publisherName, String authorName, Integer publicationYear, Double sellingPrice, Category category, Integer numberOfBooks, Integer threshold) {
         this.isbn = isbn;
         this.title = title;
         this.publisherId = publisherId;
+        this.publisherName = publisherName;
+        this.authorName = authorName;
         this.publicationYear = publicationYear;
         this.sellingPrice = sellingPrice;
         this.category = category;
@@ -58,6 +62,14 @@ public class Book {
         return isbn;
     }
 
+    public String getPublisherName() {
+        return publisherName;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -88,5 +100,13 @@ public class Book {
 
     public void setThreshold(Integer threshold) {
         this.threshold = threshold;
+    }
+
+    public void setPublisherName(String publisherName) {
+        this.publisherName = publisherName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 }

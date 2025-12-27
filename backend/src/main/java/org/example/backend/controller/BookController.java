@@ -5,6 +5,7 @@ import org.example.backend.model.entity.Book;
 import org.example.backend.service.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class BookController {
         this.bookService = bookService;
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping
     public ResponseEntity<?> createBook(@RequestBody BookCreateRequest request) {
         try {
@@ -30,6 +32,7 @@ public class BookController {
         }
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{isbn}")
     public ResponseEntity<?> updateBook(@PathVariable String isbn, @RequestBody BookCreateRequest request) {
         try {
@@ -57,9 +60,14 @@ public class BookController {
 
     // TODO: Add pagination
     @GetMapping
-    public ResponseEntity<?> getAllBooks() {
+    public ResponseEntity<?> getAllBooks(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String author,
+            @RequestParam(required = false) String isbn,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String publisher) {
         try {
-            List<Book> books =  bookService.getAllBooks();
+            List<Book> books = bookService.searchBooks(title, author, isbn, category, publisher);
             return ResponseEntity.ok(books); // return empty list if no books
         }
         catch(Exception e) {

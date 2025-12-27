@@ -3,7 +3,7 @@
 import { CartBookPrice } from "./mockCartData";
 import { apiRequest } from "./api-client";
 
-const BASE_PATH = "/v1/api/cart";
+const BASE_PATH = "/cart";
 
 /* =========================
    API Calls

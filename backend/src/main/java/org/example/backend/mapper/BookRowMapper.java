@@ -28,6 +28,8 @@ public class BookRowMapper implements RowMapper<Book> {
 
         result.setNumberOfBooks(rs.getObject("number_of_books", Integer.class));
         result.setThreshold(rs.getObject("threshold", Integer.class));
+            result.setPublisherName(rs.getString("publisher_name"));
+            result.setAuthorName(rs.getString("author_name"));
         return result;
     }
 }

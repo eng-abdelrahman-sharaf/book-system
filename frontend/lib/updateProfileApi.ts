@@ -25,7 +25,7 @@ export interface ChangePasswordRequest {
 ========================= */
 
 export async function getProfile(): Promise<UserUpdate> {
-  const res = await apiRequest("/v1/api/user/profile");
+  const res = await apiRequest("/user/profile");
 
   if (!res.ok) {
     throw new Error(await res.text());
@@ -35,7 +35,7 @@ export async function getProfile(): Promise<UserUpdate> {
 }
 
 export async function updateProfile(user: UserUpdate): Promise<string> {
-  const res = await apiRequest("/v1/api/user/profile", {
+  const res = await apiRequest("/user/profile", {
     method: "PUT",
     body: JSON.stringify(user),
   });
@@ -52,7 +52,7 @@ export async function updateProfile(user: UserUpdate): Promise<string> {
 export async function updatePassword(
   request: ChangePasswordRequest
 ): Promise<{ success: boolean; message: string }> {
-  const res = await apiRequest("/v1/api/user/password", {
+  const res = await apiRequest("/user/password", {
     method: "PUT",
     body: JSON.stringify(request),
   });
@@ -63,4 +63,15 @@ export async function updatePassword(
     success: res.ok,
     message: message || (res.ok ? "Password updated successfully" : "Update failed"),
   };
+}
+
+export async function getUserRole(): Promise<string> {
+  const res = await apiRequest("/user/role");
+
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
+
+  const data = await res.text();
+  return data;
 }

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getPastOrders, OrderDetails } from "../../lib/orderApi";
 import LogoutButton from "@/components/LogoutButton";
+import { getAccessToken } from '@/lib/token-storage';
 
 const OrdersPage: React.FC = () => {
     const router = useRouter();
@@ -12,7 +13,9 @@ const OrdersPage: React.FC = () => {
 
     useEffect(() => {
         const loadOrders = async () => {
-            const data = await getPastOrders();
+            const ACCESS_TOKEN = getAccessToken()
+
+            const data = await getPastOrders(ACCESS_TOKEN);
             setOrders(data);
             setLoading(false);
         };
@@ -122,10 +125,10 @@ const OrdersPage: React.FC = () => {
             )}
 
             <button
-                onClick={() => router.push("/cart")}
+                onClick={() => router.push("/home")}
                 className="mt-4 bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
             >
-                Back to Cart
+                Back to Home
             </button>
         </div>
     );

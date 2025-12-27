@@ -203,3 +203,104 @@ export const fetchTopBooks = async (
 
     return response.json();
 };
+
+export const getAllUsers = async (
+    token: string
+) => {
+    
+    const response = await fetch(
+        `http://localhost:8080/v1/api/user/all`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    if (response.status === 401) {
+        throw new Error("UNAUTHORIZED");
+    }
+
+    if (response.status === 403) {
+        throw new Error("FORBIDDEN");
+    }
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "SERVER_ERROR");
+    }
+
+    console.log("HTTP status:", response);
+
+    return response.json();
+};
+
+export const makeUserAdmin = async (
+    userId: number,
+    token: string
+) => {
+    
+    const response = await fetch(
+        `http://localhost:8080/v1/api/user/make-admin/${userId}`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    if (response.status === 401) {
+        throw new Error("UNAUTHORIZED");
+    }
+
+    if (response.status === 403) {
+        throw new Error("FORBIDDEN");
+    }
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "SERVER_ERROR");
+    }
+
+    console.log("HTTP statussss:", response);
+
+    return response.text();
+};
+
+export const dismissAdmin = async (
+    userId: number,
+    token: string
+) => {
+    
+    const response = await fetch(
+        `http://localhost:8080/v1/api/user/dismiss-admin/${userId}`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+
+    if (response.status === 401) {
+        throw new Error("UNAUTHORIZED");
+    }
+
+    if (response.status === 403) {
+        throw new Error("FORBIDDEN");
+    }
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "SERVER_ERROR");
+    }
+
+    console.log("HTTP status:", response);
+
+    return response.text();
+};

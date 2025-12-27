@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -106,6 +107,10 @@ public class UserService {
     public UserUpdate getUser(int userId){
         User user = findById(userId);
         return userUpdateMapper.toUserUpdate(user);
+    }
+    public List<User> getUsers(){
+        List<User>  users = userRepository.getAllUsers();
+        return users;
     }
     public User makeAdmin (int userId){
         return userRepository.makeAdmin(userId);

@@ -25,7 +25,7 @@ export async function submitCheckout(
     payload: CheckoutRequest
 ): Promise<CheckoutResponse> {
 
-    const res = await apiRequest("/v1/api/cart/checkout", {
+    const res = await apiRequest("/cart/checkout", {
         method: "POST",
         body: JSON.stringify(payload),
     });
@@ -58,7 +58,7 @@ export async function submitCheckout(
  * Returns saved card number or empty string
  */
 export async function getSavedCard(): Promise<string> {
-    const res = await apiRequest("/v1/api/cart/card", {
+    const res = await apiRequest("/cart/card", {
         method: "GET",
     });
 

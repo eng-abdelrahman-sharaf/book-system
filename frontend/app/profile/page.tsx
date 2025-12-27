@@ -163,6 +163,14 @@ const ProfilePage: React.FC = () => {
 
           <button
             type="button"
+            onClick={() => router.push("/profile/password")}
+            className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
+          >
+            Change Password
+          </button>
+
+          <button
+            type="button"
             onClick={() => router.push("/home")}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >

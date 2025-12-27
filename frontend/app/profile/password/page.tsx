@@ -31,7 +31,7 @@ const PasswordPage: React.FC = () => {
             const result = await updatePassword(payload);
             if (result.success) {
                 toast.success(result.message);
-                router.push("/cart"); // temporary redirect
+                router.push("/profile"); // temporary redirect
             } else {
                 toast.error(result.message);
             }
@@ -83,8 +83,8 @@ const PasswordPage: React.FC = () => {
                     <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                         Update Password
                     </button>
-                    <button type="button" onClick={() => router.push("/cart")} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                        Return to Cart
+                    <button type="button" onClick={() => router.push("/profile")} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                        Return to profile
                     </button>
                 </div>
             </form>

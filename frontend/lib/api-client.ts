@@ -1,7 +1,13 @@
-import { getAccessToken, removeAccessToken } from "./token-storage";
+import { getAccessToken, removeAccessToken, getRefreshToken, removeRefreshToken } from "./token-storage";
 import { responseErrorToString } from "./error";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+const BACKEND_URL =
+    process.env.BACKEND_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    "http://localhost:8080/v1/api";
+
+// Shared refresh promise to prevent concurrent refresh attempts
+let refreshPromise: Promise<boolean> | null = null;
 
 export async function apiRequest(
     endpoint: string,
@@ -31,7 +37,6 @@ export async function apiRequest(
 
     // Handle 401 Unauthorized - token might be expired
     if (response.status === 401) {
-        // Try to refresh the token
         const refreshed = await refreshAccessToken();
         if (refreshed) {
             // Retry the original request with new token
@@ -42,53 +47,78 @@ export async function apiRequest(
                     ...(options.headers as Record<string, string> | undefined),
                     "Authorization": `Bearer ${newAccessToken}`,
                 };
-                return fetch(url, {
+                const retryResponse = await fetch(url, {
                     ...options,
                     headers: retryHeaders,
                     credentials: "include",
                 });
+                if (retryResponse.ok || retryResponse.status !== 401) {
+                    return retryResponse;
+                }
             }
         }
-        // If refresh failed, clear tokens
         removeAccessToken();
+        removeRefreshToken();
     }
 
     return response;
 }
 
 async function refreshAccessToken(): Promise<boolean> {
-    try {
-        // Try to get refresh token from localStorage as fallback
-        const refreshToken = localStorage.getItem("refreshToken");
-        
-        const response = await fetch(`${BACKEND_URL}/v1/api/auth/refresh`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include", // Include refresh token cookie
-            body: JSON.stringify(
-                refreshToken ? { refreshToken } : {}
-            ),
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            if (data.accessToken) {
-                const { setAccessToken } = await import("./token-storage");
-                setAccessToken(data.accessToken);
-                
-                // Also store refresh token in localStorage if provided (for display purposes)
-                if (data.refreshToken) {
-                    localStorage.setItem("refreshToken", data.refreshToken);
-                }
-                return true;
-            }
-        }
-        return false;
-    } catch (error) {
-        return false;
+    // If a refresh is already in progress, wait for it instead of starting a new one
+    if (refreshPromise) {
+        return refreshPromise;
     }
+
+    // Start a new refresh attempt
+    refreshPromise = (async (): Promise<boolean> => {
+        try {
+            // Get refresh token using helper function
+            const refreshToken = getRefreshToken();
+            
+            if (!refreshToken) {
+                console.log("No refresh token found");
+                return false;
+            }
+            
+            const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include", // Include refresh token cookie
+                body: JSON.stringify({ refreshToken }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.accessToken) {
+                    const { setAccessToken, setRefreshToken } = await import("./token-storage");
+                    setAccessToken(data.accessToken);
+                    
+                    if (data.refreshToken) {
+                        setRefreshToken(data.refreshToken);
+                    }
+                    console.log("Token refreshed successfully");
+                    return true;
+                } else {
+                    console.log("Refresh response missing accessToken");
+                }
+            } else {
+                const errorText = await response.text();
+                console.log("Refresh failed:", response.status, errorText);
+            }
+            return false;
+        } catch (error) {
+            console.error("Error refreshing token:", error);
+            return false;
+        } finally {
+            // Clear the promise so future requests can attempt refresh again
+            refreshPromise = null;
+        }
+    })();
+
+    return refreshPromise;
 }
 
 export async function unauthenticatedRequest(

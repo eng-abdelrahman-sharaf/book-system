@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -31,6 +32,19 @@ public class UserRepository {
         if(count == null||count ==0) return false;
         return true;
     }
+    public List<User> getAllUsers() {
+        String sql = "SELECT role, first_name, last_name ,user_id FROM users";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            User user = new User();
+            user.setRole(Role.valueOf(rs.getString("role")));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            user.setUserId(rs.getInt("user_id"));
+            return user;
+        });
+    }
+
+
     public User create(User user){
         String query = "insert into users (username, password, first_name, last_name, email, phone, shipping_address, role)" +
                 "values (?, ?, ?, ?, ?, ?, ?, ?::role_enum) returning user_id, created_at";
