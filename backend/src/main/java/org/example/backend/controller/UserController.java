@@ -171,6 +171,13 @@ public class UserController {
         String token = extractToken(authHeader);
         return jwtService.extractRole(token);
     }
+    @GetMapping("/role")
+    public ResponseEntity<String> getRole(
+            @RequestHeader("Authorization") String authHeader) {
+
+        Role role = extractRole(authHeader);
+        return ResponseEntity.ok(role.name());
+    }
 
     private String extractToken(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {

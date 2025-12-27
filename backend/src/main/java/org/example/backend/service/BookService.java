@@ -155,12 +155,11 @@ public class BookService {
     }
 
     private void validateQuantities(BookCreateRequest request) {
-        if (request.getNumberOfBooks() != null && request.getNumberOfBooks() < 0) {
-            throw new IllegalArgumentException("Number of books cannot be negative");
-        }
-
         if (request.getThreshold() != null && request.getThreshold() < 0) {
             throw new IllegalArgumentException("Threshold cannot be negative");
+        }
+        if (request.getThreshold() != null &&  request.getNumberOfBooks() != null && request.getThreshold() >  request.getNumberOfBooks()) {
+            throw new IllegalArgumentException("Threshold cannot be greater than number of books");
         }
     }
 }
