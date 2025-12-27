@@ -153,6 +153,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;;
 
+DROP TRIGGER IF EXISTS trigger_create_publisher_order ON Books;;
 CREATE TRIGGER trigger_create_publisher_order
 AFTER UPDATE ON Books
 FOR EACH ROW
@@ -171,6 +172,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;;
 
+DROP TRIGGER IF EXISTS trigger_add_stock_on_confirmation ON PublisherOrders;;
 CREATE TRIGGER trigger_add_stock_on_confirmation
 AFTER UPDATE ON PublisherOrders
 FOR EACH ROW

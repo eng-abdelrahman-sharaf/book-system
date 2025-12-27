@@ -17,7 +17,7 @@ export interface OrderDetails {
 }
 
 const BASE_URL =
-    process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080/v1/api";
+    (process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080") + "/v1/api";
 
    
 

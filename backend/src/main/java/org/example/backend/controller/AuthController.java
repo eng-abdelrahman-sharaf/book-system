@@ -1,5 +1,9 @@
 package org.example.backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.backend.model.dto.LoginRequest;
 import org.example.backend.model.dto.LoginResponse;
 
@@ -12,11 +16,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/v1/api/auth")
+@Tag(name = "Authentication", description = "Authentication endpoints for user login, signup, and token management")
 public class AuthController {
     private final UserService userService;
     private final AuthService authService;
@@ -26,6 +28,11 @@ public class AuthController {
         this.userService = userService;
         this.authService = authService;
     }
+    @Operation(summary = "User Signup", description = "Register a new user account")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User registered successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input or user already exists")
+    })
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request){
         try{
@@ -44,6 +51,11 @@ public class AuthController {
 
 
 
+    @Operation(summary = "Refresh Access Token", description = "Generate a new access token using a valid refresh token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+            @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
+    })
     @PostMapping("/refresh")
     public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest request) {
         try {
@@ -71,6 +83,11 @@ public class AuthController {
             this.refreshToken = refreshToken;
         }
     }
+    @Operation(summary = "User Login", description = "Authenticate user and receive access and refresh tokens")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Login successful"),
+            @ApiResponse(responseCode = "400", description = "Invalid credentials")
+    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request){
         try {
@@ -83,6 +100,11 @@ public class AuthController {
     }
 
 
+    @Operation(summary = "User Logout", description = "Invalidate refresh token and log out user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Logout successful"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
             @RequestHeader("Authorization") String authHeader,

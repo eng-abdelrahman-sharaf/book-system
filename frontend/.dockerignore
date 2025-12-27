@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.gitignore
+README.md
+*.md
+.idea
+.vscode
+.DS_Store
+.env*.local
+coverage
+.vitest
+storybook-static
+dist
+

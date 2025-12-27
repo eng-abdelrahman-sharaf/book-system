@@ -440,7 +440,7 @@ const AdminDashboard = () => {
               className="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-96 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
               <option value="">Choose a book...</option>
-              {allBooks?.map((book, index) => (
+              {allBooks?.map((book: any, index: number) => (
                 <option key={index} value={book.isbn}>{book.title}</option>
               ))}
             </select>

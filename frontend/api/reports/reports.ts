@@ -2,12 +2,14 @@
 
 import { responseErrorToString } from "@/lib/error";
 
+const BACKEND_URL = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+
 export const fetchTopCustomers = async (
     token: string
 ) => {
     
     const response = await fetch(
-        `http://localhost:8080/v1/api/user/reports/TopBookCustomers`,
+        `${BACKEND_URL}/v1/api/user/reports/TopBookCustomers`,
         {
             method: "GET",
             headers: {
@@ -40,7 +42,7 @@ export const fetchPreviousMonthSales = async (
 ) => {
     
     const response = await fetch(
-        `http://localhost:8080/v1/api/user/reports/totalsales`,
+        `${BACKEND_URL}/v1/api/user/reports/totalsales`,
         {
             method: "GET",
             headers: {
@@ -74,7 +76,7 @@ export const fetchDailySales = async (
 ) => {
     
     const response = await fetch(
-        `http://localhost:8080/v1/api/user/reports/t?date=${date}`,
+        `${BACKEND_URL}/v1/api/user/reports/t?date=${date}`,
         {
             method: "GET",
             headers: {
@@ -106,7 +108,7 @@ export const getAllbooks = async (
 ) => {
     
     const response = await fetch(
-        `http://localhost:8080/v1/api/books`,
+        `${BACKEND_URL}/v1/api/books`,
         {
             method: "GET",
             headers: {
@@ -141,7 +143,7 @@ export const fetchBookReport = async (
     console.log(isbn)
     
     const response = await fetch(
-        `http://localhost:8080/v1/api/user/reports/orderd/${isbn?isbn:-1}`,
+        `${BACKEND_URL}/v1/api/user/reports/orderd/${isbn?isbn:-1}`,
         {
             method: "GET",
             headers: {
@@ -174,7 +176,7 @@ export const fetchTopBooks = async (
 ) => {
     
     const response = await fetch(
-        `http://localhost:8080/v1/api/user/reports/TopBooksales`,
+        `${BACKEND_URL}/v1/api/user/reports/TopBooksales`,
         {
             method: "GET",
             headers: {
