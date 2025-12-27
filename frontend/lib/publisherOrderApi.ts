@@ -4,7 +4,7 @@ import { apiRequest } from "./api-client";
 import { responseErrorToString } from "./error";
 import { PublisherOrder, PublisherOrderStatus } from "@/types/publisher-orders";
 
-const BASE_URL = "/v1/api/publisher-orders";
+const BASE_URL = "/publisher-orders";
 
 export async function getAllPublisherOrders(status?: PublisherOrderStatus): Promise<PublisherOrder[]> {
     try {

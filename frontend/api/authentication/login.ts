@@ -7,7 +7,7 @@ const BACKEND_URL = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_U
 
 
 export const login = async (data: LoginFormData): Promise<LoginResponse> => {
-    const response = await fetch(`${BACKEND_URL}/auth/login`, {
+    const response = await fetch(`http://localhost:8080/v1/api/auth/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

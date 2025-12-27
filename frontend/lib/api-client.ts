@@ -4,7 +4,7 @@ import { responseErrorToString } from "./error";
 const BACKEND_URL =
     process.env.BACKEND_URL ||
     process.env.NEXT_PUBLIC_BACKEND_URL ||
-    "http://localhost:8080";
+    "http://localhost:8080/v1/api";
 
 export async function apiRequest(
     endpoint: string,
