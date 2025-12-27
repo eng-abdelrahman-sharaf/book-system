@@ -1,9 +1,6 @@
 import { Book, BookSearchParams } from "../types/book";
 import { apiRequest } from "./api-client";
 import { responseErrorToString } from "./error";
-import { getAccessToken } from "./token-storage";
-
-const BACKEND_URL = "http://localhost:8080/api/v1";
 
 export async function searchBooksServer(
     params: BookSearchParams

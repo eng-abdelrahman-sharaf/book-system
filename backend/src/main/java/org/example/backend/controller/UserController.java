@@ -7,6 +7,7 @@ import org.example.backend.service.JwtService;
 import org.example.backend.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.example.backend.model.entity.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
