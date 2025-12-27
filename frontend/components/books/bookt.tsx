@@ -1,19 +1,9 @@
 "use client";
 
-import React from "react";
-
-interface Book {
-    isbn: string;
-    title: string;
-    publisherId: number;
-    publisherName: string;
-    authorName: string | null;
-    publicationYear: number;
-    sellingPrice: number;
-    category: string;
-    numberOfBooks: number;
-    threshold: number;
-}
+import React, { useState } from "react";
+import { toast } from "react-hot-toast";
+import { Book } from "@/types/book";
+import { addBooks } from "@/api/cart/add-books";
 
 interface BookComponentProps {
     book: Book;
@@ -21,9 +11,25 @@ interface BookComponentProps {
 }
 
 const BookComponent: React.FC<BookComponentProps> = ({ book, onAddToCart }) => {
-    const handleAddToCart = () => {
+    const [adding, setAdding] = useState(false);
+
+    const handleAddToCart = async () => {
         if (onAddToCart) {
             onAddToCart(book);
+            return;
+        }
+
+        if (book.numberOfBooks === 0 || adding) return;
+
+        setAdding(true);
+        try {
+            await addBooks([{ isbn: book.isbn, quantity: 1 }]);
+            toast.success(`Added "${book.title}" to cart`);
+        } catch (err) {
+            console.error("Failed to add to cart", err);
+            toast.error("Failed to add to cart");
+        } finally {
+            setAdding(false);
         }
     };
 
@@ -93,13 +99,17 @@ const BookComponent: React.FC<BookComponentProps> = ({ book, onAddToCart }) => {
 
                 <button
                     onClick={handleAddToCart}
-                    disabled={book.numberOfBooks === 0}
+                    disabled={book.numberOfBooks === 0 || adding}
                     className={`w-full mt-4 py-2 px-4 rounded-lg font-semibold transition-colors ${
                         book.numberOfBooks === 0
                             ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                             : "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
                     }`}>
-                    {book.numberOfBooks === 0 ? "Out of Stock" : "Add to Cart"}
+                    {book.numberOfBooks === 0
+                        ? "Out of Stock"
+                        : adding
+                        ? "Adding..."
+                        : "Add to Cart"}
                 </button>
             </div>
         </div>
