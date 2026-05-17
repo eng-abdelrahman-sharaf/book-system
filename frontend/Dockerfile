@@ -6,15 +6,10 @@ FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* pnpm-lock.yaml* ./
+COPY package.json package-lock.json* ./
 
 # Install dependencies
-RUN \
-  if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm install --frozen-lockfile; \
-  else \
-    npm ci; \
-  fi
+RUN npm ci;
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -33,12 +28,7 @@ ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
 ENV BACKEND_URL=$BACKEND_URL
 
 # Build the application
-RUN \
-  if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm run build; \
-  else \
-    npm run build; \
-  fi
+RUN npm run build;
 
 # Production image
 FROM base AS runner
